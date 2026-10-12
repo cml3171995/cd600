@@ -67,8 +67,12 @@ if data["total"] >= TARGET and not data["notified"]:
                     f"最新日期：{data['end_date']}\n累计：{data['total']}℃·d / 600℃·d\n"
                     f"历时 {days_n} 天。同条件养护600℃·d已达到，请安排强度评估。")
         try:
-            http(f"https://sctapi.ftqq.com/{SC_KEY}.send",
-                 {"title": "【600℃·d】同条件养护累计已达标", "desp": push_msg})
+            body = urllib.parse.urlencode(
+                {"title": "【600℃·d】同条件养护累计已达标", "desp": push_msg}).encode()
+            r2 = urllib.request.Request(f"https://sctapi.ftqq.com/{SC_KEY}.send",
+                                        data=body, headers={"User-Agent": "600cd"})
+            with urllib.request.urlopen(r2, timeout=30) as rr:
+                print("Server酱返回:", rr.read().decode()[:120])
             data["notified"] = True
             print("已推送微信提醒")
         except Exception as e:
