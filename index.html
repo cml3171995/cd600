@@ -18,6 +18,7 @@ input:focus{outline:0;border-color:var(--blue)}
 button{padding:11px 16px;border:0;border-radius:10px;font-size:15px;color:#fff;background:var(--blue);white-space:nowrap}
 button.gray{background:#8a97a5}
 button.red{background:#c0392b;padding:5px 12px;font-size:13px}
+button.small{padding:6px 12px;font-size:13px}
 .bar{height:12px;background:#e8eef5;border-radius:6px;margin:10px 0 5px;overflow:hidden}
 .bar>i{display:block;height:100%;background:linear-gradient(90deg,#2f7fd1,var(--blue));border-radius:6px}
 .bar>i.done{background:linear-gradient(90deg,#27ae60,#1e8e4e)}
@@ -25,134 +26,238 @@ button.red{background:#c0392b;padding:5px 12px;font-size:13px}
 .pname small{font-weight:400;color:#888;font-size:12px;margin-left:6px}
 .pcum{font-size:22px;font-weight:700;color:var(--blue)}
 .pcum small{font-size:12px;color:#888;font-weight:400}
-.pmeta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#777}
+.pmeta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#777;gap:6px}
 .badge{background:#e6f4ea;color:#1e8e4e;border-radius:6px;padding:2px 8px}
 .tip{font-size:13px;color:#1a7a3a;text-align:center;min-height:18px;margin-top:8px}
 .empty{text-align:center;color:#999;padding:14px 0;font-size:14px}
 footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
 #mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9}
-#mask .m{background:#fff;border-radius:14px;padding:20px;max-width:86%;font-size:14px}
+#mask .m{background:#fff;border-radius:14px;padding:20px;max-width:88%;font-size:14px;max-height:82vh;overflow:auto}
 #mask button{margin-top:12px;width:100%}
+.mtxt{white-space:pre-line}
 </style>
 </head>
 <body>
-<div class="card">
+
+<!-- 登录屏 -->
+<div class="card" id="login">
   <h1>同条件养护 600℃·d 累计跟踪</h1>
-  <div class="sub">中建八局第四建设有限公司 · 技术质量部 · <span id="city">青岛</span></div>
-  <div class="row">
-    <input id="pname" placeholder="工程部位，如：3#楼三层墙柱">
-    <input id="ppour" type="date">
-  </div>
-  <div class="row">
-    <button style="flex:1" onclick="addPart()">＋ 添加工程部位</button>
-    <button class="gray" onclick="dl()">⬇ Excel</button>
-  </div>
-  <div class="tip" id="tip"></div>
+  <div class="sub">中建八局第四建设有限公司 · 技术质量部</div>
+  <div class="row"><input id="code" inputmode="numeric" placeholder="请输入项目编号"></div>
+  <div class="row"><button style="flex:1" onclick="login()">进 入 系 统</button></div>
+  <div class="tip" id="ltip"></div>
 </div>
-<div id="list"></div>
-<div id="mask"><div class="m"><div id="mtxt"></div><button onclick="hide()">知道了</button></div></div>
-<footer>数据每天07:00自动更新（昨日实测均温，低于0℃按0计）</footer>
+
+<!-- 主屏 -->
+<div id="main" style="display:none">
+  <div class="card">
+    <div class="pmeta">
+      <div><span class="pname" id="pjname">--</span><small id="pjcode"></small></div>
+      <button class="small gray" onclick="logout()">切换项目</button>
+    </div>
+    <div class="sub" style="margin-top:4px" id="pjaddr"></div>
+    <div class="row">
+      <input id="pname" placeholder="工程部位，如：3#楼三层墙柱">
+      <input id="ppour" type="date" style="max-width:150px">
+    </div>
+    <div class="row">
+      <button style="flex:1" onclick="addPart()">＋ 添加工程部位</button>
+      <button class="gray" onclick="dl()">⬇ Excel</button>
+      <button id="bindbtn" class="gray" onclick="openBind()">🔔绑定提醒</button>
+    </div>
+    <div class="tip" id="tip"></div>
+  </div>
+  <div id="list"></div>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）</footer>
+</div>
+
+<div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
+
 <script>
-var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt',path:'data.json'};
-var D=null,delArm=null;
+var SALT='JZ600-2026-QD-4B';
+var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt'};
+var REG=null,CODE=null,CUR=null,DATA=null,delArm=null;
+
+// 密钥流：byte(i,j)=(SALT[j%len]*31+i*97+j*7+codeSum)%251，与后端一致
+function keystream(code,n){
+  var cs=0;for(var q=0;q<code.length;q++)cs+=code.charCodeAt(q);
+  var out=[];
+  for(var k=0;k<n;k++){var i=Math.floor(k/32),j=k%32;
+    out.push((SALT.charCodeAt(j%SALT.length)*31+i*97+j*7+cs)%251);}
+  return out;
+}
+function xenc(code,s){
+  var raw=unescape(encodeURIComponent(s)),ks=keystream(code,raw.length),out='';
+  for(var k=0;k<raw.length;k++)out+=String.fromCharCode(raw.charCodeAt(k)^ks[k]);
+  return btoa(out);
+}
+function xdec(code,b64){
+  var raw=atob(b64),ks=keystream(code,raw.length),out='';
+  for(var k=0;k<raw.length;k++)out+=String.fromCharCode(raw.charCodeAt(k)^ks[k]);
+  return decodeURIComponent(escape(out));
+}
+
+function show(m){document.getElementById('mtxt').textContent=m;document.getElementById('mask').style.display='flex';}
+function hide(){document.getElementById('mask').style.display='none';}
+function tip(m){document.getElementById('tip').textContent=m;}
+
+function loadJSON(path,cb){ // 经GitHub API读文件，无CDN缓存
+  fetch('https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+path+'?t='+Date.now(),
+    {headers:{'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'},cache:'no-store'})
+   .then(r=>r.json()).then(j=>{
+     if(!j.content) throw new Error(j.message||'empty');
+     cb(JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g,''))))));
+   }).catch(e=>{console.error(e);cb(null);});
+}
+
+function login(){
+  var c=document.getElementById('code').value.trim();
+  var p=REG.find(x=>x.code===c);
+  if(!p){document.getElementById('ltip').textContent='❌ 项目编号不存在，请核对后再试';return;}
+  localStorage.setItem('cd600_code',c);
+  location.hash='#code='+c;
+  enter(c);
+}
+function logout(){localStorage.removeItem('cd600_code');location.hash='';
+  document.getElementById('main').style.display='none';document.getElementById('login').style.display='block';
+  document.getElementById('code').value='';}
+function enter(c){
+  CODE=c;CUR=DATA.projects[c]||(DATA.projects[c]={days:[],parts:[]});
+  var p=REG.find(x=>x.code===c);
+  document.getElementById('pjname').textContent=p.name;
+  document.getElementById('pjcode').textContent=' ['+c+']';
+  document.getElementById('pjaddr').textContent='📍'+p.addr+' · 温度按本项目位置计算';
+  document.getElementById('login').style.display='none';
+  document.getElementById('main').style.display='block';
+  refreshBind();render();
+}
 
 function save(cb,retry){
-  cb=cb||function(){}; retry=retry||0;
-  var url='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+G.path;
+  cb=cb||function(){};retry=retry||0;
+  var url='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/data.json?t='+Date.now();
   var h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
-  var body={message:'更新部位 '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(JSON.stringify(D,null,1))))};
-  // 每次保存前强制拉取云端最新内容+sha（绕过缓存）
-  fetch(url+'?ref=main&t='+Date.now(),{headers:h,cache:'no-store'}).then(r=>r.json()).then(old=>{
+  var mk=()=>({message:'更新['+CODE+'] '+new Date().toLocaleString('zh-CN'),
+    content:btoa(unescape(encodeURIComponent(JSON.stringify(DATA,null,1))))});
+  fetch(url,{headers:h,cache:'no-store'}).then(r=>r.json()).then(old=>{
+    var body=mk();
     if(old.sha){body.sha=old.sha;
-      // 云端温度序列总是以云端为准（本页不编辑），避免覆盖每日任务写入的数据
-      try{var remote=JSON.parse(decodeURIComponent(escape(atob(old.content||''))));
-        if(remote.days&&remote.days.length)D.days=remote.days;
-        var names=D.parts.map(p=>p.name);
-        remote.parts.forEach(rp=>{if(!names.includes(rp.name))D.parts.push(rp);});
-        body.content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,1))));
+      try{ // 冲突合并：其他项目节点以云端为准，本项目以本页为准（温度序列保留云端）
+        var remote=JSON.parse(decodeURIComponent(escape(atob(old.content.replace(/\s/g,'')))));
+        var mine=body;var lp=DATA.projects[CODE].parts.map(p=>p.name);
+        remote.projects[CODE].parts.forEach(rp=>{if(!lp.includes(rp.name))DATA.projects[CODE].parts.push(rp);});
+        DATA.projects[CODE].days=remote.projects[CODE].days||DATA.projects[CODE].days;
+        for(var k in remote.projects){if(k!==CODE)DATA.projects[k]=remote.projects[k];}
+        body=mk();
       }catch(e){}
     }
     return fetch(url,{method:'PUT',headers:h,body:JSON.stringify(body)});
   }).then(r=>r.json()).then(j=>{
     if(j.commit){tip('✅ 已保存到云端');cb();}
     else if(retry<3){setTimeout(()=>save(cb,retry+1),1500);}
-    else{tip('❌ 保存失败：'+(j.message||'')+'，请下拉刷新后重试');}
+    else tip('❌ 保存失败：'+(j.message||''));
   }).catch(e=>{if(retry<3)setTimeout(()=>save(cb,retry+1),1500);else tip('❌ 网络失败：'+e);});
 }
-function tip(m){document.getElementById('tip').textContent=m;}
-function show(m){document.getElementById('mtxt').textContent=m;document.getElementById('mask').style.display='flex';}
-function hide(){document.getElementById('mask').style.display='none';}
 
 function addPart(){
   var n=document.getElementById('pname').value.trim();
   var d=document.getElementById('ppour').value;
-  if(!n) return show('请填写工程部位名称');
-  if(!d) return show('请选择浇筑日期');
-  if(D.parts.some(p=>p.name===n)) return show('已存在同名部位');
-  D.parts.push({name:n,pour:d,notified:false,cum:0,nday:0,last:''});
-  D.parts.sort((a,b)=>a.pour<b.pour?-1:1);
+  if(!n)return show('请填写工程部位名称');
+  if(!d)return show('请选择浇筑日期');
+  if(CUR.parts.some(p=>p.name===n))return show('已存在同名部位');
+  CUR.parts.push({name:n,pour:d,notified:false});
   document.getElementById('pname').value='';
-  save(render);
-  tip('已添加「'+n+'」，正在保存…');
+  save(()=>{render();tip('✅ 已添加「'+n+'」，历史温度将自动回补');});
+  tip('正在保存…');
 }
-function delPart(name){ /* eslint-disable-line */
+function delPart(name){
   if(delArm!==name){delArm=name;tip('再点一次「删除」确认删除「'+name+'」');setTimeout(()=>{delArm=null;},3000);return;}
   delArm=null;
-  D.parts=D.parts.filter(p=>p.name!==name);
+  CUR.parts=CUR.parts.filter(p=>p.name!==name);
   save(render);tip('已删除「'+name+'」');
 }
 
 function render(){
   var el=document.getElementById('list');el.innerHTML='';
-  if(!D.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
-  D.parts.forEach(p=>{
-    // 实时自算累计（不等每日定时任务写入）
-    var rows=(D.days||[]).filter(x=>x.date>=(p.pour||'9999'));
-    p.cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
-    p.nday=rows.length;p.last=rows.length?rows[rows.length-1].date:'';
-    var pct=Math.min(100,(p.cum||0)/D.target*100),done=p.cum>=D.target;
+  var days=CUR.days||[];
+  if(!CUR.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
+  CUR.parts.forEach(p=>{
+    var rows=days.filter(x=>x.date>=(p.pour||'9999'));
+    var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
+    var nday=rows.length,last=rows.length?rows[rows.length-1].date:'';
+    var tgt=600,pct=Math.min(100,cum/tgt*100),done=cum>=tgt;
     var c=document.createElement('div');c.className='card';
     c.innerHTML=
       '<div class="pmeta"><span class="pname">'+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
       '<span>'+((p.notified||done)?'<span class="badge">✅ 已达标</span>':
-        '<button class="red" onclick="delPart(this.dataset.n)" data-n="'+p.name+'">删除</button>')+'</span></div>'+
+        '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>')+'</span></div>'+
       '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
-      '<div class="pmeta"><span class="pcum">'+(p.cum||0)+'<small> ℃·d / '+D.target+'</small></span>'+
-      '<span>'+pct.toFixed(1)+'% · '+p.nday+'天 · 至'+(p.last||'温度回补中')+'</span></div>';
+      '<div class="pmeta"><span class="pcum">'+cum+'<small> ℃·d / '+tgt+'</small></span>'+
+      '<span>'+pct.toFixed(1)+'% · '+nday+'天 · 至'+(last||'温度回补中')+'</span></div>';
     el.appendChild(c);
   });
 }
+
+/* ---- 微信提醒绑定 ---- */
+function refreshBind(){
+  var b=document.getElementById('bindbtn');
+  b.textContent=CUR.sendkey_enc?'🔔已绑定 ✓':'🔔绑定提醒';
+  b.className=CUR.sendkey_enc?'small':'gray';
+}
+function openBind(){
+  if(CUR.sendkey_enc) return show('本项目已绑定微信提醒 ✓\n\n满600℃·d时将自动推送到绑定人微信。\n\n如需换绑，先点「解除绑定」。');
+  showBind();
+}
+function showBind(){
+  show('【微信提醒绑定】\n\n1️⃣ 微信扫码或打开：sct.ftqq.com\n2️⃣ 右上角「登录」→微信扫码\n3️⃣ 复制首页 SCT 开头的 SendKey\n4️⃣ 关闭本窗口，把 SendKey 粘贴到「绑定窗口」\n\n之后本项目部位满600℃·d，会自动微信提醒绑定人。\n（免费版每天最多5条，本项目足够）\n\n← 绑定窗口在主页面下方输入框');
+  // 在主界面出现粘贴输入行
+  var bar=document.getElementById('bindrow');
+  if(!bar){bar=document.createElement('div');bar.className='row';bar.id='bindrow';bar.innerHTML=
+    '<input id="sendkey" placeholder="粘贴 SCT 开头的 SendKey">'+
+    '<button onclick="doBind()">绑定</button>';document.getElementById('bindbtn').parentNode.appendChild(bar);}
+}
+function doBind(){
+  var k=document.getElementById('sendkey').value.trim();
+  if(!/^SCT[0-9A-Za-z]{10,}$/.test(k)) return tip('❌ SendKey 格式不对，应以 SCT 开头');
+  CUR.sendkey_enc=xenc(CODE,k);
+  save(()=>{refreshBind();document.getElementById('sendkey').value='';});tip('正在保存…');
+}
+function unBind(){
+  delete CUR.sendkey_enc;save(refreshBind);tip('已解除绑定');
+}
+
 function dl(){
-  if(!D.parts.length) return show('暂无部位数据');
+  if(!CUR.parts.length)return show('暂无部位数据');
+  var pj=REG.find(x=>x.code===CODE);
   var wb=XLSX.utils.book_new();
-  var s1=[['工程部位','浇筑日期','最新日期','累计天数','累计℃·d','目标℃·d','状态']];
-  D.parts.forEach(p=>s1.push([p.name,p.pour,p.last,p.nday,p.cum,D.target,p.cum>=D.target?'已达标':'进行中']));
+  var s1=[['项目编号',CODE],['项目名称',pj.name],['位置',pj.addr],[],
+    ['工程部位','浇筑日期','最新日期','累计天数','累计℃·d','目标℃·d','状态']];
+  CUR.parts.forEach(p=>{
+    var rows=(CUR.days||[]).filter(x=>x.date>=(p.pour||'9999'));
+    var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
+    s1.push([p.name,p.pour,rows.length?rows[rows.length-1].date:'',rows.length,cum,600,cum>=600?'已达标':'进行中']);
+  });
   var ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=[{wch:22},{wch:12},{wch:12},{wch:10},{wch:10},{wch:10},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws1,'部位汇总');
   var s2=[['日期','日均温(℃)','计入(℃·d)']];
-  D.days.forEach(x=>s2.push([x.date,x.temp,x.eff]));
+  (CUR.days||[]).forEach(x=>s2.push([x.date,x.temp,x.eff]));
   var ws2=XLSX.utils.aoa_to_sheet(s2);ws2['!cols']=[{wch:14},{wch:12},{wch:12}];
   XLSX.utils.book_append_sheet(wb,ws2,'每日温度明细');
-  XLSX.writeFile(wb,'同条件养护600度天累计_'+(D.end_date||'')+'.xlsx');
+  XLSX.writeFile(wb,'600度天累计_'+pj.name+'_'+CODE+'.xlsx');
 }
-function load(retry){
-  retry=retry||0;
-  // 优先走 GitHub API 直读（无CDN缓存，永远最新）；失败退回 Pages 静态文件
-  var api='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+G.path+'?t='+Date.now();
-  fetch(api,{headers:{'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'},cache:'no-store'})
-    .then(r=>r.json()).then(j=>{
-      if(j.content){
-        D=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g,'')))));
-        document.getElementById('city').textContent='📍'+D.city;render();
-      }else{ throw new Error(j.message||'API无内容'); }
-    }).catch(()=>{
-      fetch('data.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(d=>{
-        D=d;document.getElementById('city').textContent='📍'+d.city;render();
-      }).catch(e=>{if(retry<3)setTimeout(()=>load(retry+1),2000);else show('数据加载失败：'+e+'\n请检查网络后下拉重试');});
-    });
-}
-document.getElementById('city').textContent='📍'+(D&&D.city||'');
-load();
+
+/* ---- 启动 ---- */
+loadJSON('projects.json',reg=>{
+  REG=reg||[];
+  loadJSON('data.json',d=>{
+    DATA=d||{projects:{}};
+    DATA.projects=DATA.projects||{};
+    var h=location.hash.match(/code=(\d+)/);
+    var c=h?h[1]:localStorage.getItem('cd600_code');
+    if(c&&REG.find(x=>x.code===c)){document.getElementById('code').value=c;enter(c);}
+    else document.getElementById('login').style.display='block';
+  });
+});
+document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
 </body>
 </html>
