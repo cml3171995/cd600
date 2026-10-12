@@ -12,7 +12,6 @@ env:
   LON: "120.38"
   CITY: "青岛"
   TARGET: "600"
-  START_DATE: "2026-10-13"   # 起算日期：从这天起开始累计，可修改
 
 jobs:
   accumulate:
