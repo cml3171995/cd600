@@ -11,7 +11,7 @@ LAT = os.environ.get("LAT", "36.07")
 LON = os.environ.get("LON", "120.38")
 CITY = os.environ.get("CITY", "青岛")
 TARGET = float(os.environ.get("TARGET", "600"))
-PP_TOKEN = os.environ.get("PUSHPLUS_TOKEN", "").strip()
+SC_KEY = os.environ.get("SERVERCHAN_KEY", "").strip()  # Server酱 SendKey，免费额度足够（只在满600时推一次）
 START_DATE = os.environ.get("START_DATE", "").strip()  # 例如 2026-10-15，早于该日的数据不计入
 
 API = ("https://api.open-meteo.com/v1/forecast"
@@ -61,15 +61,14 @@ data["updated"] = data["end_date"]
 
 push_msg = None
 if data["total"] >= TARGET and not data["notified"]:
-    if PP_TOKEN:
+    if SC_KEY:
         days_n = len(data["days"])
-        push_msg = (f"✅ 已满600℃·d！\n位置：{CITY}\n起算日期：{data['start_date']}\n"
+        push_msg = (f"位置：{CITY}\n起算日期：{data['start_date']}\n"
                     f"最新日期：{data['end_date']}\n累计：{data['total']}℃·d / 600℃·d\n"
                     f"历时 {days_n} 天。同条件养护600℃·d已达到，请安排强度评估。")
         try:
-            http("https://www.pushplus.plus/send",
-                 {"token": PP_TOKEN, "title": "【600℃·d】累计已达标提醒",
-                  "content": push_msg, "template": "txt"})
+            http(f"https://sctapi.ftqq.com/{SC_KEY}.send",
+                 {"title": "【600℃·d】同条件养护累计已达标", "desp": push_msg})
             data["notified"] = True
             print("已推送微信提醒")
         except Exception as e:
