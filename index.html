@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>同条件养护600℃·d累计跟踪</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--blue:#005BAC;--bg:#f4f7fb}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:var(--bg);padding:14px;max-width:640px;margin:0 auto;color:#222}
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,60,120,.08)}
+h1{font-size:20px;color:var(--blue);text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:#888;font-size:12px;margin-bottom:12px}
+.total{font-size:44px;font-weight:700;color:var(--blue);text-align:center}
+.unit{font-size:15px;color:#666}
+.bar{height:14px;background:#e8eef5;border-radius:7px;margin:14px 0 6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#2f7fd1,var(--blue));border-radius:7px;transition:width .6s}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:#777}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;text-align:center}
+.g{background:#f2f7fd;border-radius:10px;padding:10px 4px}
+.g b{display:block;font-size:17px;color:var(--blue)}
+.g span{font-size:11px;color:#888}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--blue);color:#fff;padding:7px 4px;font-weight:500}
+td{padding:6px 4px;text-align:center;border-bottom:1px solid #eef2f7}
+.neg{color:#c0392b}
+.btns{display:flex;gap:10px}
+button{flex:1;padding:12px;border:0;border-radius:10px;font-size:15px;color:#fff;background:var(--blue)}
+button.gray{background:#8a97a5}
+#tip{margin-top:10px;font-size:13px;color:#1a7a3a;text-align:center;min-height:18px}
+footer{text-align:center;font-size:11px;color:#aaa;margin:6px 0 20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>同条件养护 600℃·d 累计跟踪</h1>
+  <div class="sub">中建八局第四建设有限公司 · 技术质量部</div>
+  <div class="total"><span id="total">--</span><span class="unit"> ℃·d / 600℃·d</span></div>
+  <div class="bar"><i id="bar" style="width:0"></i></div>
+  <div class="meta"><span id="city">--</span><span id="pct">--</span></div>
+  <div class="grid">
+    <div class="g"><b id="start">--</b><span>起算日期</span></div>
+    <div class="g"><b id="end">--</b><span>最新日期</span></div>
+    <div class="g"><b id="nday">--</b><span>累计天数</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="btns">
+    <button onclick="dl()">⬇ 下载Excel</button>
+    <button class="gray" onclick="copyTxt()">📋 复制数据</button>
+  </div>
+  <div id="tip"></div>
+  <div style="max-height:46vh;overflow:auto;margin-top:10px">
+    <table id="tb"><thead><tr><th>日期</th><th>日均温(℃)</th><th>计入(℃·d)</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+<footer>数据每日7:00自动更新（昨日实测均温，低于0℃按0计）</footer>
+<script>
+var D=null;
+fetch('data.json?v='+Date.now()).then(r=>r.json()).then(d=>{
+  D=d;
+  var p=Math.min(100,d.total/d.target*100);
+  document.getElementById('total').textContent=d.total;
+  document.getElementById('bar').style.width=p+'%';
+  document.getElementById('pct').textContent=p.toFixed(1)+'%';
+  document.getElementById('city').textContent='📍 '+d.city;
+  document.getElementById('start').textContent=d.start_date||'--';
+  document.getElementById('end').textContent=d.end_date||'--';
+  document.getElementById('nday').textContent=d.days.length;
+  var tb=document.querySelector('#tb tbody');
+  d.days.slice().reverse().forEach(x=>{
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+x.date+'</td><td'+(x.temp<0?' class="neg"':'')+'>'+x.temp+'</td><td>'+x.eff+'</td>';
+    tb.appendChild(tr);
+  });
+  if(d.notified) document.getElementById('tip').textContent='✅ 已满600℃·d，达标提醒已推送';
+});
+function dl(){
+  if(!D||!D.days.length)return alert('暂无数据');
+  var aoa=[['日期','日均温(℃)','计入(℃·d)']];
+  D.days.forEach(x=>aoa.push([x.date,x.temp,x.eff]));
+  aoa.push([],['位置',D.city],['起算日期',D.start_date],['最新日期',D.end_date],
+    ['累计天数',D.days.length],['累计℃·d',D.total],['目标℃·d',D.target]);
+  var wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols']=[{wch:14},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'600℃·d累计');
+  XLSX.writeFile(wb,'同条件养护600度天累计_'+(D.end_date||'')+'.xlsx');
+}
+function copyTxt(){
+  if(!D||!D.days.length)return;
+  var s='日期\t日均温(℃)\t计入(℃·d)\n'+D.days.map(x=>x.date+'\t'+x.temp+'\t'+x.eff).join('\n')
+    +'\n累计：'+D.total+'℃·d / '+D.target+'℃·d（'+D.city+'，'+D.start_date+'起）';
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(s).then(()=>tip('✅ 已复制，可粘贴到Excel'),()=>tip(s));
+  else tip(s);
+}
+function tip(m){document.getElementById('tip').textContent=m.length>60?'请长按全选下方文本框内容':m;
+  if(m.length>60){var t=document.createElement('textarea');t.value=m;document.getElementById('tip').after(t);t.style.cssText='width:100%;height:120px';t.select();}}
+</script>
+</body>
+</html>
