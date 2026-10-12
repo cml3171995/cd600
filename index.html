@@ -95,7 +95,7 @@ function addPart(){
   save(render);
   tip('已添加「'+n+'」，正在保存…');
 }
-function delPart(name){
+function delPart(name){ /* eslint-disable-line */
   if(delArm!==name){delArm=name;tip('再点一次「删除」确认删除「'+name+'」');setTimeout(()=>{delArm=null;},3000);return;}
   delArm=null;
   D.parts=D.parts.filter(p=>p.name!==name);
@@ -106,6 +106,10 @@ function render(){
   var el=document.getElementById('list');el.innerHTML='';
   if(!D.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
   D.parts.forEach(p=>{
+    // 实时自算累计（不等每日定时任务写入）
+    var rows=(D.days||[]).filter(x=>x.date>=(p.pour||'9999'));
+    p.cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
+    p.nday=rows.length;p.last=rows.length?rows[rows.length-1].date:'';
     var pct=Math.min(100,(p.cum||0)/D.target*100),done=p.cum>=D.target;
     var c=document.createElement('div');c.className='card';
     c.innerHTML=
@@ -114,7 +118,7 @@ function render(){
         '<button class="red" onclick="delPart(this.dataset.n)" data-n="'+p.name+'">删除</button>')+'</span></div>'+
       '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
       '<div class="pmeta"><span class="pcum">'+(p.cum||0)+'<small> ℃·d / '+D.target+'</small></span>'+
-      '<span>'+pct.toFixed(1)+'% · '+p.nday+'天 · 至'+(p.last||'—')+'</span></div>';
+      '<span>'+pct.toFixed(1)+'% · '+p.nday+'天 · 至'+(p.last||'温度回补中')+'</span></div>';
     el.appendChild(c);
   });
 }
