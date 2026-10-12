@@ -67,6 +67,12 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     </div>
     <div class="tip" id="tip"></div>
   </div>
+  <div class="card" id="bindcard" style="display:none">
+    <div class="pname" style="margin-bottom:6px">🔔 微信提醒绑定</div>
+    <div style="font-size:13px;color:#666;line-height:1.7">① 微信扫码登录 <b>sct.ftqq.com</b>（右上角登录）<br>② 复制首页 <b>SCT</b> 开头的 SendKey，粘贴到下方<br>③ 点「绑定」——本项目满600℃·d自动微信提醒绑定人<br><span style="color:#999">免费版每天最多5条，本项目足够；换手机微信时点「解除绑定」重绑</span></div>
+    <div class="row"><input id="sendkey" placeholder="粘贴 SCT 开头的 SendKey"><button onclick="doBind()">绑定</button></div>
+    <div class="row" id="unbindrow" style="display:none"><button class="red" style="flex:1" onclick="unBind()">解除绑定</button></div>
+  </div>
   <div id="list"></div>
   <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）</footer>
 </div>
@@ -204,16 +210,14 @@ function refreshBind(){
   b.className=CUR.sendkey_enc?'small':'gray';
 }
 function openBind(){
-  if(CUR.sendkey_enc) return show('本项目已绑定微信提醒 ✓\n\n满600℃·d时将自动推送到绑定人微信。\n\n如需换绑，先点「解除绑定」。');
-  showBind();
+  var c=document.getElementById('bindcard');
+  c.style.display=c.style.display==='none'?'block':'none';
 }
-function showBind(){
-  show('【微信提醒绑定】\n\n1️⃣ 微信扫码或打开：sct.ftqq.com\n2️⃣ 右上角「登录」→微信扫码\n3️⃣ 复制首页 SCT 开头的 SendKey\n4️⃣ 关闭本窗口，把 SendKey 粘贴到「绑定窗口」\n\n之后本项目部位满600℃·d，会自动微信提醒绑定人。\n（免费版每天最多5条，本项目足够）\n\n← 绑定窗口在主页面下方输入框');
-  // 在主界面出现粘贴输入行
-  var bar=document.getElementById('bindrow');
-  if(!bar){bar=document.createElement('div');bar.className='row';bar.id='bindrow';bar.innerHTML=
-    '<input id="sendkey" placeholder="粘贴 SCT 开头的 SendKey">'+
-    '<button onclick="doBind()">绑定</button>';document.getElementById('bindbtn').parentNode.appendChild(bar);}
+function refreshBind(){
+  var b=document.getElementById('bindbtn');
+  b.textContent=CUR.sendkey_enc?'🔔已绑定 ✓':'🔔绑定提醒';
+  b.className=CUR.sendkey_enc?'small':'gray';
+  document.getElementById('unbindrow').style.display=CUR.sendkey_enc?'flex':'none';
 }
 function doBind(){
   var k=document.getElementById('sendkey').value.trim();
@@ -222,6 +226,8 @@ function doBind(){
   save(()=>{refreshBind();document.getElementById('sendkey').value='';});tip('正在保存…');
 }
 function unBind(){
+  if(delArm!=='unbind'){delArm='unbind';tip('再点一次「解除绑定」确认');setTimeout(()=>{delArm=null;},3000);return;}
+  delArm=null;
   delete CUR.sendkey_enc;save(refreshBind);tip('已解除绑定');
 }
 
