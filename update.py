@@ -57,7 +57,7 @@ if data["days"]:
 data["total"] = round(sum(x["eff"] for x in data["days"]), 1)
 data["city"] = CITY
 data["target"] = TARGET
-data["updated"] = data["end_date"]
+data["updated"] = data.get("end_date")
 
 push_msg = None
 if data["total"] >= TARGET and not data["notified"]:
@@ -84,4 +84,4 @@ with open("data.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
 
 print(f"新增{len(added)}天:", [(a['date'], a['temp']) for a in added])
-print(f"累计 {data['total']}℃·d / {TARGET}，共{len(data['days'])}天，区间 {data['start_date']} ~ {data['end_date']}")
+print(f"累计 {data['total']}℃·d / {TARGET}，共{len(data['days'])}天，区间 {data.get('start_date')} ~ {data.get('end_date')}")
