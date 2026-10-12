@@ -7,13 +7,13 @@
   },
   {
    "date": "2026-10-06",
-   "temp": 20.0,
-   "eff": 20.0
+   "temp": 20,
+   "eff": 20
   },
   {
    "date": "2026-10-07",
-   "temp": 20.0,
-   "eff": 20.0
+   "temp": 20,
+   "eff": 20
   },
   {
    "date": "2026-10-08",
@@ -36,10 +36,19 @@
    "eff": 20.5
   }
  ],
- "parts": [],
+ "parts": [
+  {
+   "name": "1#楼1层",
+   "pour": "2026-10-12",
+   "notified": false,
+   "cum": 0,
+   "nday": 0,
+   "last": ""
+  }
+ ],
  "notified": false,
  "start_date": "2026-10-05",
  "end_date": "2026-10-11",
  "city": "青岛",
- "target": 600.0
+ "target": 600
 }
