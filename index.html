@@ -131,8 +131,24 @@ function dl(){
   XLSX.utils.book_append_sheet(wb,ws2,'每日温度明细');
   XLSX.writeFile(wb,'同条件养护600度天累计_'+(D.end_date||'')+'.xlsx');
 }
+function load(retry){
+  retry=retry||0;
+  // 优先走 GitHub API 直读（无CDN缓存，永远最新）；失败退回 Pages 静态文件
+  var api='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+G.path+'?t='+Date.now();
+  fetch(api,{headers:{'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'},cache:'no-store'})
+    .then(r=>r.json()).then(j=>{
+      if(j.content){
+        D=JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g,'')))));
+        document.getElementById('city').textContent='📍'+D.city;render();
+      }else{ throw new Error(j.message||'API无内容'); }
+    }).catch(()=>{
+      fetch('data.json?v='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(d=>{
+        D=d;document.getElementById('city').textContent='📍'+d.city;render();
+      }).catch(e=>{if(retry<3)setTimeout(()=>load(retry+1),2000);else show('数据加载失败：'+e+'\n请检查网络后下拉重试');});
+    });
+}
 document.getElementById('city').textContent='📍'+(D&&D.city||'');
-fetch('data.json?v='+Date.now()).then(r=>r.json()).then(d=>{D=d;document.getElementById('city').textContent='📍'+d.city;render();});
+load();
 </script>
 </body>
 </html>
