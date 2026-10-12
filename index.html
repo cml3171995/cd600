@@ -56,18 +56,28 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
 var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt',path:'data.json'};
 var D=null,delArm=null;
 
-function save(cb){
-  cb=cb||function(){};
+function save(cb,retry){
+  cb=cb||function(){}; retry=retry||0;
   var url='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+G.path;
   var h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
   var body={message:'更新部位 '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(JSON.stringify(D,null,1))))};
-  fetch(url+'?ref=main',{headers:h}).then(r=>r.json()).then(old=>{
-    if(old.sha) body.sha=old.sha;
+  // 每次保存前强制拉取云端最新内容+sha（绕过缓存）
+  fetch(url+'?ref=main&t='+Date.now(),{headers:h,cache:'no-store'}).then(r=>r.json()).then(old=>{
+    if(old.sha){body.sha=old.sha;
+      // 云端温度序列总是以云端为准（本页不编辑），避免覆盖每日任务写入的数据
+      try{var remote=JSON.parse(decodeURIComponent(escape(atob(old.content||''))));
+        if(remote.days&&remote.days.length)D.days=remote.days;
+        var names=D.parts.map(p=>p.name);
+        remote.parts.forEach(rp=>{if(!names.includes(rp.name))D.parts.push(rp);});
+        body.content=btoa(unescape(encodeURIComponent(JSON.stringify(D,null,1))));
+      }catch(e){}
+    }
     return fetch(url,{method:'PUT',headers:h,body:JSON.stringify(body)});
   }).then(r=>r.json()).then(j=>{
     if(j.commit){tip('✅ 已保存到云端');cb();}
-    else{tip('❌ 保存失败：'+(j.message||'')); }
-  }).catch(e=>tip('❌ 网络/权限失败：'+e));
+    else if(retry<3){setTimeout(()=>save(cb,retry+1),1500);}
+    else{tip('❌ 保存失败：'+(j.message||'')+'，请下拉刷新后重试');}
+  }).catch(e=>{if(retry<3)setTimeout(()=>save(cb,retry+1),1500);else tip('❌ 网络失败：'+e);});
 }
 function tip(m){document.getElementById('tip').textContent=m;}
 function show(m){document.getElementById('mtxt').textContent=m;document.getElementById('mask').style.display='flex';}
