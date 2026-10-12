@@ -8,10 +8,7 @@ permissions:
   contents: write
 
 env:
-  LAT: "36.07"
-  LON: "120.38"
-  CITY: "青岛"
-  TARGET: "600"
+  TARGET: "600"   # 各项目坐标在 projects.json 中配置
 
 jobs:
   accumulate:
