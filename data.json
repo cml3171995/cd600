@@ -1,8 +1,1 @@
-{
- "days": [],
- "total": 0,
- "notified": false,
- "city": "青岛",
- "target": 600.0,
- "updated": null
-}
+{"days": [], "parts": [], "notified": false}
