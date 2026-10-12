@@ -8,95 +8,121 @@
 <style>
 :root{--blue:#005BAC;--bg:#f4f7fb}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
-body{background:var(--bg);padding:14px;max-width:640px;margin:0 auto;color:#222}
-.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,60,120,.08)}
-h1{font-size:20px;color:var(--blue);text-align:center;margin-bottom:4px}
-.sub{text-align:center;color:#888;font-size:12px;margin-bottom:12px}
-.total{font-size:44px;font-weight:700;color:var(--blue);text-align:center}
-.unit{font-size:15px;color:#666}
-.bar{height:14px;background:#e8eef5;border-radius:7px;margin:14px 0 6px;overflow:hidden}
-.bar>i{display:block;height:100%;background:linear-gradient(90deg,#2f7fd1,var(--blue));border-radius:7px;transition:width .6s}
-.meta{display:flex;justify-content:space-between;font-size:12px;color:#777}
-.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;text-align:center}
-.g{background:#f2f7fd;border-radius:10px;padding:10px 4px}
-.g b{display:block;font-size:17px;color:var(--blue)}
-.g span{font-size:11px;color:#888}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--blue);color:#fff;padding:7px 4px;font-weight:500}
-td{padding:6px 4px;text-align:center;border-bottom:1px solid #eef2f7}
-.neg{color:#c0392b}
-.btns{display:flex;gap:10px}
-button{flex:1;padding:12px;border:0;border-radius:10px;font-size:15px;color:#fff;background:var(--blue)}
+body{background:var(--bg);padding:14px;max-width:640px;margin:0 auto;color:#222;padding-bottom:30px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,60,120,.08)}
+h1{font-size:19px;color:var(--blue);text-align:center;margin-bottom:3px}
+.sub{text-align:center;color:#888;font-size:12px}
+.row{display:flex;gap:8px;margin-top:10px}
+input{flex:1;padding:11px;border:1px solid #d5dee8;border-radius:10px;font-size:15px;min-width:0}
+input:focus{outline:0;border-color:var(--blue)}
+button{padding:11px 16px;border:0;border-radius:10px;font-size:15px;color:#fff;background:var(--blue);white-space:nowrap}
 button.gray{background:#8a97a5}
-#tip{margin-top:10px;font-size:13px;color:#1a7a3a;text-align:center;min-height:18px}
-footer{text-align:center;font-size:11px;color:#aaa;margin:6px 0 20px}
+button.red{background:#c0392b;padding:5px 12px;font-size:13px}
+.bar{height:12px;background:#e8eef5;border-radius:6px;margin:10px 0 5px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#2f7fd1,var(--blue));border-radius:6px}
+.bar>i.done{background:linear-gradient(90deg,#27ae60,#1e8e4e)}
+.pname{font-size:16px;font-weight:600}
+.pname small{font-weight:400;color:#888;font-size:12px;margin-left:6px}
+.pcum{font-size:22px;font-weight:700;color:var(--blue)}
+.pcum small{font-size:12px;color:#888;font-weight:400}
+.pmeta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#777}
+.badge{background:#e6f4ea;color:#1e8e4e;border-radius:6px;padding:2px 8px}
+.tip{font-size:13px;color:#1a7a3a;text-align:center;min-height:18px;margin-top:8px}
+.empty{text-align:center;color:#999;padding:14px 0;font-size:14px}
+footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
+#mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9}
+#mask .m{background:#fff;border-radius:14px;padding:20px;max-width:86%;font-size:14px}
+#mask button{margin-top:12px;width:100%}
 </style>
 </head>
 <body>
 <div class="card">
   <h1>同条件养护 600℃·d 累计跟踪</h1>
-  <div class="sub">中建八局第四建设有限公司 · 技术质量部</div>
-  <div class="total"><span id="total">--</span><span class="unit"> ℃·d / 600℃·d</span></div>
-  <div class="bar"><i id="bar" style="width:0"></i></div>
-  <div class="meta"><span id="city">--</span><span id="pct">--</span></div>
-  <div class="grid">
-    <div class="g"><b id="start">--</b><span>起算日期</span></div>
-    <div class="g"><b id="end">--</b><span>最新日期</span></div>
-    <div class="g"><b id="nday">--</b><span>累计天数</span></div>
+  <div class="sub">中建八局第四建设有限公司 · 技术质量部 · <span id="city">青岛</span></div>
+  <div class="row">
+    <input id="pname" placeholder="工程部位，如：3#楼三层墙柱">
+    <input id="ppour" type="date">
   </div>
+  <div class="row">
+    <button style="flex:1" onclick="addPart()">＋ 添加工程部位</button>
+    <button class="gray" onclick="dl()">⬇ Excel</button>
+  </div>
+  <div class="tip" id="tip"></div>
 </div>
-<div class="card">
-  <div class="btns">
-    <button onclick="dl()">⬇ 下载Excel</button>
-    <button class="gray" onclick="copyTxt()">📋 复制数据</button>
-  </div>
-  <div id="tip"></div>
-  <div style="max-height:46vh;overflow:auto;margin-top:10px">
-    <table id="tb"><thead><tr><th>日期</th><th>日均温(℃)</th><th>计入(℃·d)</th></tr></thead><tbody></tbody></table>
-  </div>
-</div>
-<footer>数据每日7:00自动更新（昨日实测均温，低于0℃按0计）</footer>
+<div id="list"></div>
+<div id="mask"><div class="m"><div id="mtxt"></div><button onclick="hide()">知道了</button></div></div>
+<footer>数据每天07:00自动更新（昨日实测均温，低于0℃按0计）</footer>
 <script>
-var D=null;
-fetch('data.json?v='+Date.now()).then(r=>r.json()).then(d=>{
-  D=d;
-  var p=Math.min(100,d.total/d.target*100);
-  document.getElementById('total').textContent=d.total;
-  document.getElementById('bar').style.width=p+'%';
-  document.getElementById('pct').textContent=p.toFixed(1)+'%';
-  document.getElementById('city').textContent='📍 '+d.city;
-  document.getElementById('start').textContent=d.start_date||'--';
-  document.getElementById('end').textContent=d.end_date||'--';
-  document.getElementById('nday').textContent=d.days.length;
-  var tb=document.querySelector('#tb tbody');
-  d.days.slice().reverse().forEach(x=>{
-    var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+x.date+'</td><td'+(x.temp<0?' class="neg"':'')+'>'+x.temp+'</td><td>'+x.eff+'</td>';
-    tb.appendChild(tr);
+var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt',path:'data.json'};
+var D=null,delArm=null;
+
+function save(cb){
+  cb=cb||function(){};
+  var url='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+G.path;
+  var h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+  var body={message:'更新部位 '+new Date().toLocaleString('zh-CN'),content:btoa(unescape(encodeURIComponent(JSON.stringify(D,null,1))))};
+  fetch(url+'?ref=main',{headers:h}).then(r=>r.json()).then(old=>{
+    if(old.sha) body.sha=old.sha;
+    return fetch(url,{method:'PUT',headers:h,body:JSON.stringify(body)});
+  }).then(r=>r.json()).then(j=>{
+    if(j.commit){tip('✅ 已保存到云端');cb();}
+    else{tip('❌ 保存失败：'+(j.message||'')); }
+  }).catch(e=>tip('❌ 网络/权限失败：'+e));
+}
+function tip(m){document.getElementById('tip').textContent=m;}
+function show(m){document.getElementById('mtxt').textContent=m;document.getElementById('mask').style.display='flex';}
+function hide(){document.getElementById('mask').style.display='none';}
+
+function addPart(){
+  var n=document.getElementById('pname').value.trim();
+  var d=document.getElementById('ppour').value;
+  if(!n) return show('请填写工程部位名称');
+  if(!d) return show('请选择浇筑日期');
+  if(D.parts.some(p=>p.name===n)) return show('已存在同名部位');
+  D.parts.push({name:n,pour:d,notified:false,cum:0,nday:0,last:''});
+  D.parts.sort((a,b)=>a.pour<b.pour?-1:1);
+  document.getElementById('pname').value='';
+  save(render);
+  tip('已添加「'+n+'」，正在保存…');
+}
+function delPart(name){
+  if(delArm!==name){delArm=name;tip('再点一次「删除」确认删除「'+name+'」');setTimeout(()=>{delArm=null;},3000);return;}
+  delArm=null;
+  D.parts=D.parts.filter(p=>p.name!==name);
+  save(render);tip('已删除「'+name+'」');
+}
+
+function render(){
+  var el=document.getElementById('list');el.innerHTML='';
+  if(!D.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
+  D.parts.forEach(p=>{
+    var pct=Math.min(100,(p.cum||0)/D.target*100),done=p.cum>=D.target;
+    var c=document.createElement('div');c.className='card';
+    c.innerHTML=
+      '<div class="pmeta"><span class="pname">'+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
+      '<span>'+((p.notified||done)?'<span class="badge">✅ 已达标</span>':
+        '<button class="red" onclick="delPart(this.dataset.n)" data-n="'+p.name+'">删除</button>')+'</span></div>'+
+      '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
+      '<div class="pmeta"><span class="pcum">'+(p.cum||0)+'<small> ℃·d / '+D.target+'</small></span>'+
+      '<span>'+pct.toFixed(1)+'% · '+p.nday+'天 · 至'+(p.last||'—')+'</span></div>';
+    el.appendChild(c);
   });
-  if(d.notified) document.getElementById('tip').textContent='✅ 已满600℃·d，达标提醒已推送';
-});
+}
 function dl(){
-  if(!D||!D.days.length)return alert('暂无数据');
-  var aoa=[['日期','日均温(℃)','计入(℃·d)']];
-  D.days.forEach(x=>aoa.push([x.date,x.temp,x.eff]));
-  aoa.push([],['位置',D.city],['起算日期',D.start_date],['最新日期',D.end_date],
-    ['累计天数',D.days.length],['累计℃·d',D.total],['目标℃·d',D.target]);
-  var wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols']=[{wch:14},{wch:12},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws,'600℃·d累计');
+  if(!D.parts.length) return show('暂无部位数据');
+  var wb=XLSX.utils.book_new();
+  var s1=[['工程部位','浇筑日期','最新日期','累计天数','累计℃·d','目标℃·d','状态']];
+  D.parts.forEach(p=>s1.push([p.name,p.pour,p.last,p.nday,p.cum,D.target,p.cum>=D.target?'已达标':'进行中']));
+  var ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=[{wch:22},{wch:12},{wch:12},{wch:10},{wch:10},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws1,'部位汇总');
+  var s2=[['日期','日均温(℃)','计入(℃·d)']];
+  D.days.forEach(x=>s2.push([x.date,x.temp,x.eff]));
+  var ws2=XLSX.utils.aoa_to_sheet(s2);ws2['!cols']=[{wch:14},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'每日温度明细');
   XLSX.writeFile(wb,'同条件养护600度天累计_'+(D.end_date||'')+'.xlsx');
 }
-function copyTxt(){
-  if(!D||!D.days.length)return;
-  var s='日期\t日均温(℃)\t计入(℃·d)\n'+D.days.map(x=>x.date+'\t'+x.temp+'\t'+x.eff).join('\n')
-    +'\n累计：'+D.total+'℃·d / '+D.target+'℃·d（'+D.city+'，'+D.start_date+'起）';
-  if(navigator.clipboard&&navigator.clipboard.writeText)
-    navigator.clipboard.writeText(s).then(()=>tip('✅ 已复制，可粘贴到Excel'),()=>tip(s));
-  else tip(s);
-}
-function tip(m){document.getElementById('tip').textContent=m.length>60?'请长按全选下方文本框内容':m;
-  if(m.length>60){var t=document.createElement('textarea');t.value=m;document.getElementById('tip').after(t);t.style.cssText='width:100%;height:120px';t.select();}}
+document.getElementById('city').textContent='📍'+(D&&D.city||'');
+fetch('data.json?v='+Date.now()).then(r=>r.json()).then(d=>{D=d;document.getElementById('city').textContent='📍'+d.city;render();});
 </script>
 </body>
 </html>
