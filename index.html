@@ -78,6 +78,16 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
+<div id="cbox" style="position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:10">
+  <div class="m" style="background:#fff;border-radius:14px;padding:20px;max-width:86%;font-size:15px">
+    <div style="font-weight:600;margin-bottom:10px">请核对录入信息</div>
+    <div id="ctext" style="line-height:1.8"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="gray" style="flex:1" onclick="cancelAdd()">取消</button>
+      <button id="okbtn" style="flex:1" onclick="confirmAdd()">确认录入</button>
+    </div>
+  </div>
+</div>
 
 <script>
 var SALT='JZ600-2026-QD-4B';
@@ -164,16 +174,32 @@ function save(cb,retry){
   }).catch(e=>{if(retry<3)setTimeout(()=>save(cb,retry+1),1500);else tip('❌ 网络失败：'+e);});
 }
 
+var pending=null;
 function addPart(){
   var n=document.getElementById('pname').value.trim();
   var d=document.getElementById('ppour').value;
   if(!n)return show('请填写工程部位名称');
   if(!d)return show('请选择浇筑日期');
-  if(CUR.parts.some(p=>p.name===n))return show('已存在同名部位');
+  if(CUR.parts.some(p=>p.name===n))return show('已存在同名部位「'+n+'」，请换一个名称');
+  pending={name:n,pour:d};
+  document.getElementById('ctext').innerHTML='工程部位：<b>'+n+'</b><br>浇筑日期：<b>'+d+'</b>';
+  document.getElementById('cbox').style.display='flex';
+}
+function cancelAdd(){pending=null;document.getElementById('cbox').style.display='none';}
+function confirmAdd(){
+  if(!pending)return;
+  var n=pending.name,d=pending.pour;
+  document.getElementById('okbtn').textContent='保存中…';
   CUR.parts.push({name:n,pour:d,notified:false});
-  document.getElementById('pname').value='';
-  save(()=>{render();tip('✅ 已添加「'+n+'」，历史温度将自动回补');});
-  tip('正在保存…');
+  save(()=>{
+    render();
+    document.getElementById('pname').value='';document.getElementById('ppour').value='';
+    document.getElementById('okbtn').textContent='确认录入';
+    pending=null;document.getElementById('cbox').style.display='none';
+    show('✅ 已成功录入「'+n+'」\n\n浇筑日期：'+d+'\n历史温度将自动回补（最迟明早7点）\n累计进度稍后自动显示');
+    render();
+  });
+  tip('正在保存「'+n+'」…');
 }
 function delPart(name){
   if(delArm!==name){delArm=name;tip('再点一次「删除」确认删除「'+name+'」');setTimeout(()=>{delArm=null;},3000);return;}
