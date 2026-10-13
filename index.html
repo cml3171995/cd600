@@ -92,7 +92,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
 <script>
 var SALT='JZ600-2026-QD-4B';
 var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt'};
-var REG=null,CODE=null,CUR=null,DATA=null,delArm=null;
+var REG=null,CODE=null,CUR=null,DATA=null,delArm=null;var delSet={};
 
 // 密钥流：byte(i,j)=(SALT[j%len]*31+i*97+j*7+codeSum)%251，与后端一致
 function keystream(code,n){
@@ -180,7 +180,7 @@ function save(cb,retry){
             if(old.content){
               var remote=JSON.parse(decodeURIComponent(escape(atob(old.content.replace(/\s/g,'')))));
               var lp=DATA.projects[CODE].parts.map(p=>p.name);
-              (remote.projects[CODE].parts||[]).forEach(rp=>{if(!lp.includes(rp.name))DATA.projects[CODE].parts.push(rp);});
+              (remote.projects[CODE].parts||[]).forEach(rp=>{if(!lp.includes(rp.name)&&!delSet[rp.name])DATA.projects[CODE].parts.push(rp);});
               if((remote.projects[CODE].days||[]).length)DATA.projects[CODE].days=remote.projects[CODE].days;
               for(var k in remote.projects){if(k!==CODE)DATA.projects[k]=remote.projects[k];}
             }
@@ -214,6 +214,7 @@ function confirmAdd(){
   var n=pending.name,d=pending.pour;
   document.getElementById('okbtn').textContent='保存中…';
   CUR.parts.push({name:n,pour:d,notified:false});
+  delete delSet[n]; // 重新录入的部位解除删除标记
   save(()=>{
     render();
     document.getElementById('pname').value='';document.getElementById('ppour').value='';
@@ -228,6 +229,7 @@ function delPart(name){
   if(delArm!==name){delArm=name;tip('再点一次「删除」确认删除「'+name+'」');setTimeout(()=>{delArm=null;},3000);return;}
   delArm=null;
   CUR.parts=CUR.parts.filter(p=>p.name!==name);
+  delSet[name]=1; // 本次会话已删除，合并时不得复活
   save(render);tip('已删除「'+name+'」');
 }
 
