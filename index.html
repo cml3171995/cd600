@@ -74,7 +74,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="row" id="unbindrow" style="display:none"><button class="red" style="flex:1" onclick="unBind()">解除绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261013b</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -276,15 +276,17 @@ function doBind(){
   CUR.sendkey_enc=xenc(CODE,k);
   save(()=>{
     refreshBind();document.getElementById('sendkey').value='';
-    // 绑定成功，立即向绑定人微信发一条确认消息（no-cors发出，不读响应）
+    // 绑定成功，用隐藏iframe表单提交发确认消息（最兼容，不受跨域限制）
     var pj=REG.find(x=>x.code===CODE)||{name:CODE};
     try{
-      fetch('https://sctapi.ftqq.com/'+k+'.send',{method:'POST',mode:'no-cors',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:'title='+encodeURIComponent('【600℃·d】微信提醒绑定成功')+
-             '&desp='+encodeURIComponent('项目：'+pj.name+'（'+CODE+'）\n\n绑定成功！\n此后本项目任一工程部位同条件养护累计满600℃·d，将自动推送到本微信，消息会注明项目名称与部位名称。')});
-      tip('✅ 绑定成功，确认消息已发到你的微信，请注意查收');
-    }catch(e){tip('✅ 绑定成功');}
+      var f=document.createElement('form');f.method='POST';f.target='sndfm';
+      f.action='https://sctapi.ftqq.com/'+k+'.send';
+      var mk=function(n,v){var i=document.createElement('input');i.type='hidden';i.name=n;i.value=v;f.appendChild(i);};
+      mk('title','【600℃·d】微信提醒绑定成功');
+      mk('desp','项目：'+pj.name+'（'+CODE+'）\n\n绑定成功！\n此后本项目任一工程部位同条件养护累计满600℃·d，将自动推送到本微信（消息注明项目与部位）。\n\n绑定时间：'+new Date().toLocaleString('zh-CN'));
+      document.body.appendChild(f);f.submit();setTimeout(()=>f.remove(),5000);
+      tip('✅ 绑定成功，确认消息已发出，请查看微信「方糖」服务号');
+    }catch(e){tip('✅ 绑定成功（确认消息发送异常，但绑定已生效）');}
   });
   tip('正在保存…');
 }
@@ -328,5 +330,6 @@ loadJSON('projects.json',reg=>{
 });
 document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
+<iframe name="sndfm" style="display:none"></iframe>
 </body>
 </html>
