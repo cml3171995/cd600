@@ -86,7 +86,13 @@
      "eff": 19.9
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "综合楼承台及地梁",
+     "pour": "2026-10-09",
+     "notified": false
+    }
+   ],
    "start_date": "2026-10-06",
    "end_date": "2026-10-12",
    "sendkey_enc": "koENlZtqx4g03hOUY91eRA8HoiV2ox5hQL21LrjK6PATXQ=="
