@@ -43,7 +43,13 @@
      "eff": 19.7
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "1号楼1层",
+     "pour": "2026-10-13",
+     "notified": false
+    }
+   ],
    "start_date": "2026-10-05",
    "end_date": "2026-10-12"
   },
