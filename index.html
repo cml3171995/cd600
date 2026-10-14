@@ -251,8 +251,7 @@ function render(){
       '<div class="pmeta"><span class="pname">'+(p.sent?'📦':'')+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
       '<span>'+
         (p.sent?'<span class="badge">已送检</span>':'')+
-        ((p.notified||done)?'<span class="badge">✅ 已达标</span>':'')+
-        '<button class="small '+(p.sent?'':'blue')+'" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)" style="background:'+(p.sent?'#8a97a5':'#1e8e4e')+';color:#fff">'+(p.sent?'取消送检':'✓已送检')+'</button>'+
+        '<button style="background:'+(p.sent?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 10px;font-size:13px;margin-right:10px" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)">'+(p.sent?'取消送检':'已送检')+'</button>'+
         '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>'+
       '</span></div>'+
       '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
