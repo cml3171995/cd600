@@ -223,7 +223,13 @@
      "eff": 19
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "1号楼1-7轴基础承台",
+     "pour": "2026-09-15",
+     "notified": false
+    }
+   ],
    "start_date": "2026-10-05",
    "end_date": "2026-10-13",
    "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg=="
