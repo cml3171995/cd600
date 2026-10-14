@@ -56,6 +56,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
       <button class="small gray" onclick="logout()">切换项目</button>
     </div>
     <div class="sub" style="margin-top:4px" id="pjaddr"></div>
+  <div id="wxinfo" style="text-align:center;font-size:13px;color:#555;margin-top:6px"></div>
     <div class="row">
       <input id="pname" placeholder="工程部位，如：3#楼三层墙柱">
       <input id="ppour" type="date" style="max-width:150px">
@@ -143,6 +144,7 @@ function enter(c){
   document.getElementById('pjname').textContent=p.name;
   document.getElementById('pjcode').textContent=' ['+c+']';
   document.getElementById('pjaddr').textContent='📍'+p.addr+' · 温度按本项目位置计算';
+  loadWx(p.lat,p.lon);
   document.getElementById('login').style.display='none';
   document.getElementById('main').style.display='block';
   refreshBind();render();
@@ -249,7 +251,8 @@ function render(){
         '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>')+'</span></div>'+
       '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
       '<div class="pmeta"><span class="pcum">'+cum+'<small> ℃·d / '+tgt+'</small></span>'+
-      '<span>'+pct.toFixed(1)+'% · '+nday+'天 · 至'+(last||'温度回补中')+'</span></div>';
+      '<span>'+pct.toFixed(1)+'% · '+nday+'天 · 至'+(last||'温度回补中')+'</span></div>'+
+      '<div style="font-size:12px;color:#888;margin-top:4px">'+(cum>=600?'✅ 已达标':(p.est?'📅 预计达标：'+p.est+'（按近一年月均温预测，供参考）':'📅 预计达标：待次日更新'))+'</div>';
     el.appendChild(c);
   });
 }
@@ -329,6 +332,19 @@ loadJSON('projects.json',reg=>{
   });
 });
 document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+/* 项目所在地3天天气预报（页面直接读取，不依赖后台） */
+var WMO={0:'晴',1:'多云',2:'少云',3:'阴',45:'雾',48:'雾凇',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'冻雨',71:'小雪',73:'中雪',75:'大雪',77:'米雪',80:'阵雨',81:'阵雨',82:'强阵雨',85:'阵雪',86:'阵雪',95:'雷阵雨',96:'雷雨伴雹',99:'雷雨伴雹'};
+function loadWx(lat,lon){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
+        '&daily=weathercode,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Asia%2FShanghai')
+  .then(r=>r.json()).then(w=>{
+    var d=w.daily,labels=['今天','明天','后天'],s=[];
+    for(var i=0;i<3;i++){
+      s.push(labels[i]+' '+WMO[d.weathercode[i]]+' '+Math.round(d.temperature_2m_min[i])+'~'+Math.round(d.temperature_2m_max[i])+'℃');
+    }
+    document.getElementById('wxinfo').textContent='🌡 '+s.join('　');
+  }).catch(()=>{});
+}
 </script>
 <iframe name="sndfm" style="display:none"></iframe>
 </body>
