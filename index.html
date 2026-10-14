@@ -339,7 +339,7 @@ loadJSON('projects.json',reg=>{
   loadJSON('data.json',d=>{
     DATA=d||{projects:{}};
     DATA.projects=DATA.projects||{};
-    var h=location.hash.match(/code=(\d+)/);
+    var h=location.hash.match(/code=([A-Za-z0-9]+)/);
     var c=h?h[1]:localStorage.getItem('cd600_code');
     if(c&&REG.find(x=>x.code===c)){document.getElementById('code').value=c;enter(c);}
     else document.getElementById('login').style.display='block';
