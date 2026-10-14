@@ -13,11 +13,16 @@ SALT = "JZ600-2026-QD-4B"   # 与前端一致的混淆盐
 
 FORECAST = ("https://api.open-meteo.com/v1/forecast"
             "?latitude={lat}&longitude={lon}"
-            "&daily=temperature_2m_mean&past_days=7&forecast_days=1"
-            "&timezone=Asia%2FShanghai")
+            "&daily=temperature_2m_mean&past_days=92&forecast_days=1"
+            "&timezone=Asia%2FShanghai")   # 92天实测覆盖绝大部分回补需求
 ARCHIVE = ("https://archive-api.open-meteo.com/v1/archive"
            "?latitude={lat}&longitude={lon}"
-           "&daily=temperature_2m_mean&timezone=Asia%2FShanghai")
+           "&daily=temperature_2m_mean&timezone=Asia%2FShanghai")  # 仅92天以外的旧日期兜底
+# 气候基线兜底（archive被限流时用）：山东月均温常值(℃)
+NORMAL_QD = {1:-0.5,2:1.2,3:5.2,4:10.6,5:16.1,6:20.5,7:24.6,8:25.8,9:22.2,10:16.2,11:8.6,12:2.2}   # 青岛沿海
+NORMAL_WF = {1:-3.0,2:0.0,3:6.5,4:14.0,5:19.8,6:24.2,7:26.5,8:26.0,9:22.0,10:15.5,11:7.0,12:0.0}   # 潍坊/寿光内陆
+def normals_for(code):
+    return NORMAL_WF if code == "10188043" else NORMAL_QD
 
 def http(url, data=None, form=False):
     if form:
@@ -45,7 +50,7 @@ def daterange(a, b):
     while d <= e:
         yield d.isoformat(); d += datetime.timedelta(days=1)
 
-def climate_monthly(lat, lon, today):
+def climate_monthly(lat, lon, today, code):
     """过去12个月 archive 日均温 → {月份: 平均eff}（低于0按0），作为未来气候基线"""
     start = (today.replace(day=1) - datetime.timedelta(days=365)).isoformat()
     end = today.isoformat()
@@ -59,19 +64,20 @@ def climate_monthly(lat, lon, today):
             acc[m] = acc.get(m, 0.0) + max(0.0, v); cnt[m] = cnt.get(m, 0) + 1
         return {m: acc[m] / cnt[m] for m in acc}
     except Exception as e:
-        print("气候基线获取失败(仅影响预测):", e)
-        return {}
+        print("气候基线接口限流，改用气候常值表:", e)
+        return {"__fb__": normals_for(code)}
 
 def month_eff(climate, y, m):
-    """某月日均eff基线：优先取过去12个月同月实测均值；无数据则用全年均值"""
+    """某月日均eff基线：优先取过去12个月同月实测均值，其次气候常值表"""
     key = f"{y:04d}-{m:02d}"
     if key in climate:
         return climate[key]
-    # 找任意年份同月的均值
-    same = [v for k, v in climate.items() if k[5:7] == f"{m:02d}"]
+    same = [v for k, v in climate.items() if k != "__fb__" and k[5:7] == f"{m:02d}"]
     if same:
         return sum(same) / len(same)
-    allv = list(climate.values())
+    if "__fb__" in climate:
+        return climate["__fb__"][m]
+    allv = [v for k, v in climate.items() if k != "__fb__"]
     return sum(allv) / len(allv) if allv else 0.0
 
 def estimate_date(pour, cum, last_date, climate, today):
@@ -115,31 +121,31 @@ for reg in registry:
     except Exception as e:
         print(f"[{code}] 预报API失败(下次重试):", e)
 
-    # 2) 回补历史
+    # 2) 回补历史：FORECAST已带92天实测（上面第1步顺带完成）；更早的日期才用archive兜底
     pours = [p["pour"][:10] for p in node["parts"] if p.get("pour")]
     if pours and have:
         start, end = min(pours), max(have)
-        if start < end:
-            missing = [d for d in daterange(start, end) if d not in have]
-            if missing:
-                try:
-                    ar = http(f"{ARCHIVE}&start_date={start}&end_date={end}")
-                    n = 0
-                    for d, v in zip(ar["daily"]["time"], ar["daily"]["temperature_2m_mean"]):
-                        if d in have or v is None:
-                            continue
-                        rec = {"date": d, "temp": round(v, 1), "eff": max(0.0, round(v, 1))}
-                        days.append(rec); have[d] = rec; n += 1
-                    if n: print(f"[{code}] 回补历史 {n} 天")
-                except Exception as e:
-                    print(f"[{code}] 回补失败(下次重试):", e)
+        limit = (today - datetime.timedelta(days=92)).isoformat()
+        missing = [d for d in daterange(start, end) if d not in have and d < limit]
+        if missing:
+            try:
+                ar = http(f"{ARCHIVE}&start_date={min(missing)}&end_date={max(missing)}")
+                n = 0
+                for d, v in zip(ar["daily"]["time"], ar["daily"]["temperature_2m_mean"]):
+                    if d in have or v is None:
+                        continue
+                    rec = {"date": d, "temp": round(v, 1), "eff": max(0.0, round(v, 1))}
+                    days.append(rec); have[d] = rec; n += 1
+                if n: print(f"[{code}] archive回补 {n} 天")
+            except Exception as e:
+                print(f"[{code}] 92天以外旧日期回补失败(不影响近期数据):", e)
 
     days.sort(key=lambda x: x["date"])
     node["start_date"] = days[0]["date"] if days else None
     node["end_date"] = days[-1]["date"] if days else None
 
     # 3) 气候基线 + 部位累计/预测/分别提醒
-    climate = climate_monthly(lat, lon, today)
+    climate = climate_monthly(lat, lon, today, code)
     sk_enc = node.get("sendkey_enc")
     for p in node["parts"]:
         pour = p.get("pour", "")[:10]
