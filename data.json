@@ -1743,7 +1743,8 @@
     {
      "name": "1号楼1层",
      "pour": "2026-09-14",
-     "notified": false
+     "notified": false,
+     "sent": 1
     },
     {
      "name": "1号楼2层",
