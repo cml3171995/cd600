@@ -239,22 +239,37 @@ function render(){
   var el=document.getElementById('list');el.innerHTML='';
   var days=CUR.days||[];
   if(!CUR.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
-  CUR.parts.forEach(p=>{
+  // 排序：未送检在前按浇筑时间升序（最快达标的在最上），已送检沉底
+  CUR.parts.slice().sort((a,b)=>(a.sent?1:0)-(b.sent?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
     var rows=days.filter(x=>x.date>=(p.pour||'9999'));
     var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
     var nday=rows.length,last=rows.length?rows[rows.length-1].date:'';
     var tgt=600,pct=Math.min(100,cum/tgt*100),done=cum>=tgt;
     var c=document.createElement('div');c.className='card';
+    c.style.opacity=p.sent?'.62':'1';
     c.innerHTML=
-      '<div class="pmeta"><span class="pname">'+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
-      '<span>'+((p.notified||done)?'<span class="badge">✅ 已达标</span>':
-        '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>')+'</span></div>'+
+      '<div class="pmeta"><span class="pname">'+(p.sent?'📦':'')+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
+      '<span>'+
+        (p.sent?'<span class="badge">已送检</span>':'')+
+        ((p.notified||done)?'<span class="badge">✅ 已达标</span>':'')+
+        '<button class="small '+(p.sent?'':'blue')+'" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)" style="background:'+(p.sent?'#8a97a5':'#1e8e4e')+';color:#fff">'+(p.sent?'取消送检':'✓已送检')+'</button>'+
+        '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>'+
+      '</span></div>'+
       '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
       '<div class="pmeta"><span class="pcum">'+cum+'<small> ℃·d / '+tgt+'</small></span>'+
       '<span>'+pct.toFixed(1)+'% · '+nday+'天 · 至'+(last||'温度回补中')+'</span></div>'+
       '<div style="font-size:12px;color:#888;margin-top:4px">'+(cum>=600?'✅ 已达标':(p.est?'📅 预计达标：'+p.est+'（按近一年月均温预测，供参考）':'📅 预计达标：待次日更新'))+'</div>';
     el.appendChild(c);
   });
+}
+
+function sentPart(name){
+  var p=CUR.parts.find(x=>x.name===name);if(!p)return;
+  if(!p.sent){p.sent=1;save(render);tip('「'+name+'」已标记送检，已移至列表末尾');}
+  else{
+    if(delArm!=='s'+name){delArm='s'+name;tip('再点一次「取消送检」确认');setTimeout(()=>{delArm=null;},3000);return;}
+    delArm=null;p.sent=0;save(render);tip('「'+name+'】已恢复为未送检');
+  }
 }
 
 /* ---- 微信提醒绑定 ---- */
