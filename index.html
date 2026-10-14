@@ -75,7 +75,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="row" id="unbindrow" style="display:none"><button class="red" style="flex:1" onclick="unBind()">解除绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261014a</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261014b</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -90,8 +90,18 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
   </div>
 </div>
 
-<script>
 var SALT='JZ600-2026-QD-4B';
+
+// 带超时的fetch（手机弱网防挂起）
+function FF(u,o,t){
+  o=o||{};
+  if(typeof AbortController!=='undefined'){
+    var c=new AbortController();var id=setTimeout(function(){c.abort();},t||9000);
+    o.signal=c.signal;
+    return fetch(u,o).then(function(x){clearTimeout(id);return x;},function(e){clearTimeout(id);throw e;});
+  }
+  return fetch(u,o);
+}
 var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt'};
 var REG=null,CODE=null,CUR=null,DATA=null,delArm=null;var delSet={};
 
@@ -119,7 +129,7 @@ function hide(){document.getElementById('mask').style.display='none';}
 function tip(m){document.getElementById('tip').textContent=m;}
 
 function loadJSON(path,cb){ // 经GitHub API读文件，无CDN缓存
-  fetch('https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+path+'?t='+Date.now(),
+  FF('https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+path+'?t='+Date.now(),
     {headers:{'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'},cache:'no-store'})
    .then(r=>r.json()).then(j=>{
      if(!j.content) throw new Error(j.message||'empty');
@@ -153,14 +163,14 @@ function enter(c){
 function getSha(retry){ // 云端data.json版本号：主通道contents API，备用Git底层接口
   var h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'};
   var base='https://api.github.com/repos/'+G.owner+'/'+G.repo;
-  return fetch(base+'/contents/data.json?ref=main&t='+Date.now(),{headers:h,cache:'no-store'})
+  return FF(base+'/contents/data.json?ref=main&t='+Date.now(),{headers:h,cache:'no-store'})
     .then(r=>r.json()).then(j=>{
       if(j.sha) return j.sha;
       throw new Error('no-sha');
     }).catch(()=>
-      fetch(base+'/git/ref/heads/main',{headers:h,cache:'no-store'}).then(r=>r.json())
-      .then(ref=>fetch(base+'/git/commits/'+ref.object.sha,{headers:h,cache:'no-store'}).then(r=>r.json()))
-      .then(cm=>fetch(base+'/git/trees/'+cm.tree.sha,{headers:h,cache:'no-store'}).then(r=>r.json()))
+      FF(base+'/git/ref/heads/main',{headers:h,cache:'no-store'}).then(r=>r.json())
+      .then(ref=>FF(base+'/git/commits/'+ref.object.sha,{headers:h,cache:'no-store'}).then(r=>r.json()))
+      .then(cm=>FF(base+'/git/trees/'+cm.tree.sha,{headers:h,cache:'no-store'}).then(r=>r.json()))
       .then(tr=>{var f=(tr.tree||[]).find(x=>x.path==='data.json');if(!f)throw new Error('no-file');return f.sha;})
     ).catch(e=>{
       if(retry<2)return new Promise(res=>setTimeout(()=>res(getSha(retry+1)),2000));
@@ -177,7 +187,7 @@ function save(cb,retry){
     var body=mk();
     if(oldSha){body.sha=oldSha;
       try{ // 冲突合并：其他项目节点以云端为准，本项目以本页为准
-        return fetch(url.replace('?t=','?ref=main&t=')+''.replace('t=','t='),{headers:h,cache:'no-store'})
+        return FF(url.replace('?t=','?ref=main&t=')+''.replace('t=','t='),{headers:h,cache:'no-store'})
           .then(r=>r.json()).then(old=>{
             if(old.content){
               var remote=JSON.parse(decodeURIComponent(escape(atob(old.content.replace(/\s/g,'')))));
@@ -191,7 +201,7 @@ function save(cb,retry){
     }
     return Promise.resolve(mk()); // 云端无文件时首次创建
   })
-  .then(body=>fetch(url,{method:'PUT',headers:h,body:JSON.stringify(body)}))
+  .then(body=>FF(url,{method:'PUT',headers:h,body:JSON.stringify(body)}))
   .then(r=>r.json()).then(j=>{
     if(j.commit){tip('✅ 已保存到云端');cb();}
     else if(retry<4){setTimeout(()=>save(cb,retry+1),2000+retry*2000);}
@@ -349,7 +359,7 @@ document.getElementById('code').addEventListener('keydown',e=>{if(e.key==='Enter
 /* 项目所在地3天天气预报（页面直接读取，不依赖后台） */
 var WMO={0:'晴',1:'多云',2:'少云',3:'阴',45:'雾',48:'雾凇',51:'毛毛雨',53:'毛毛雨',55:'毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'冻雨',71:'小雪',73:'中雪',75:'大雪',77:'米雪',80:'阵雨',81:'阵雨',82:'强阵雨',85:'阵雪',86:'阵雪',95:'雷阵雨',96:'雷雨伴雹',99:'雷雨伴雹'};
 function loadWx(lat,lon){
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
+  FF('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
         '&daily=weathercode,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Asia%2FShanghai')
   .then(r=>r.json()).then(w=>{
     var d=w.daily,labels=['今天','明天','后天'],s=[];
