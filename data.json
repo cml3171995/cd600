@@ -50,7 +50,8 @@
    ],
    "parts": [],
    "start_date": "2026-10-05",
-   "end_date": "2026-10-13"
+   "end_date": "2026-10-13",
+   "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA=="
   },
   "10188043": {
    "days": [
@@ -100,9 +101,27 @@
      "eff": 17.4
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "综合楼承台及地梁",
+     "pour": "2026-10-09",
+     "notified": false,
+     "cum": 97.4,
+     "nday": 5,
+     "last": "2026-10-13"
+    },
+    {
+     "name": "1",
+     "pour": "2026-08-20",
+     "notified": true,
+     "cum": 1252.5,
+     "nday": 55,
+     "last": "2026-10-13"
+    }
+   ],
    "start_date": "2026-10-05",
-   "end_date": "2026-10-13"
+   "end_date": "2026-10-13",
+   "sendkey_enc": "koENlZtqx4g03hOUY91eRA8HoiV2ox5hQL21LrjK6PATXQ=="
   },
   "10188051": {
    "days": [
