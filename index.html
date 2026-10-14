@@ -156,6 +156,7 @@ function enter(c){
   document.getElementById('pjcode').textContent=' ['+c+']';
   document.getElementById('pjaddr').textContent='📍'+p.addr+' · 温度按本项目位置计算';
   loadWx(p.lat,p.lon);
+  loadBack(p.lat,p.lon);
   document.getElementById('login').style.display='none';
   document.getElementById('main').style.display='block';
   refreshBind();render();
@@ -251,8 +252,10 @@ function render(){
   var days=CUR.days||[];
   if(!CUR.parts.length){el.innerHTML='<div class="card empty">还没有工程部位，请在上方填写「工程部位 + 浇筑日期」后添加</div>';return;}
   // 排序：未送检在前按浇筑时间升序（最快达标的在最上），已送检沉底
+  var dm={};days.forEach(x=>dm[x.date]=x.eff);
+  for(var k in BK){if(!(k in dm))dm[k]=BK[k];}
   CUR.parts.slice().sort((a,b)=>(a.sent?1:0)-(b.sent?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
-    var rows=days.filter(x=>x.date>=(p.pour||'9999'));
+    var rows=Object.keys(dm).filter(x=>x>=(p.pour||'9999')).sort().map(x=>({date:x,eff:dm[x]}));
     var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
     var nday=rows.length,last=rows.length?rows[rows.length-1].date:'';
     var tgt=600,pct=Math.min(100,cum/tgt*100),done=cum>=tgt;
@@ -368,6 +371,19 @@ function loadWx(lat,lon){
       s.push(labels[i]+' '+WMO[d.weathercode[i]]+' '+Math.round(d.temperature_2m_min[i])+'~'+Math.round(d.temperature_2m_max[i])+'℃');
     }
     document.getElementById('wxinfo').textContent='🌡 '+s.join('　');
+  }).catch(()=>{});
+}
+// 进入项目时就地抓取近92天实测温度，让新录入部位立即累计（不等每日任务）
+var BK={};
+function loadBack(lat,lon){
+  FF('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
+     '&daily=temperature_2m_mean&past_days=92&forecast_days=1&timezone=Asia%2FShanghai')
+  .then(r=>r.json()).then(w=>{
+    var t=w.daily.time,m=w.daily.temperature_2m_mean;
+    for(var i=0;i<t.length;i++){
+      if(m[i]!=null&&t[i]<t[t.length-1])BK[t[i]]=Math.max(0,Math.round(m[i]*10)/10);
+    }
+    render();
   }).catch(()=>{});
 }
 </script>
