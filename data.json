@@ -2235,7 +2235,7 @@
     {
      "name": "1号楼1层",
      "pour": "2026-09-14",
-     "notified": false,
+     "notified": true,
      "sent": 1,
      "cum": 734.0,
      "nday": 35,
@@ -2254,7 +2254,7 @@
     {
      "name": "1号楼负1层",
      "pour": "2026-08-30",
-     "notified": false,
+     "notified": true,
      "sent": 1,
      "cum": 1090.2,
      "nday": 50,
@@ -2273,7 +2273,7 @@
     {
      "name": "2号楼负1层",
      "pour": "2026-09-16",
-     "notified": false,
+     "notified": true,
      "cum": 687.2,
      "nday": 33,
      "last": "2026-10-18",
