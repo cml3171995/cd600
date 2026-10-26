@@ -1374,7 +1374,8 @@
    "start_date": "2026-07-25",
    "end_date": "2026-10-25",
    "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
-   "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw=="
+   "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
+   "ch2_enc": "BRS9AgjTv2umS3nksSkzoYWGGtXvHLenONYIi1L7DFXe9w=="
   },
   "10188247": {
    "days": [
