@@ -1,7 +1,7 @@
 name: 每日600℃·d累计
 on:
   schedule:
-    - cron: "0 23 * * *"   # UTC 23:00 = 北京时间每天 07:00
+    - cron: "0 0 * * *"    # UTC 0:00 = 北京时间每天 08:00（7天/28天当天8点起提醒）
   workflow_dispatch: {}
 
 permissions:
