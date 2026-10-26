@@ -172,7 +172,7 @@ for reg in registry:
     need600 = [p for p in node["parts"] if p["cum"] >= TARGET and not p.get("sent")]
     if need600:
         lines = [f"- {p['name']}（浇筑{p.get('pour')}，累计{p['cum']}℃·d）" for p in need600]
-        desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排强度评估，送检后在页面点「已送检」：\n\n" + "\n".join(lines)
+        desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
         push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp)
 
     # 4b) 7天/28天 每日汇总提醒
@@ -181,14 +181,14 @@ for reg in registry:
     if due7 or due28:
         lines = []
         if due7:
-            lines.append("【7天试块到期】")
+            lines.append("【7天试压到期】")
             lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due7]
         if due28:
             lines.append("")
-            lines.append("【28天试块到期】")
+            lines.append("【28天试压到期】")
             lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28]
         desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines) + \
-               "\n\n试块送检完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
+               "\n\n试块试压完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
         push(code, node, f"【试块提醒】{name} 7天{len(due7)}个/28天{len(due28)}个待送检", desp)
 
 with open("data.json", "w", encoding="utf-8") as f:
