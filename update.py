@@ -96,21 +96,28 @@ def _send(key, title, desp):
         return False
     return True
 
-def push(code, node, title, desp, tag=""):
+def push(code, node, title, desp, tag="", to_master=True):
+    """双通道推送：通道1试验员 / 通道2质量总监；to_master=False时不发监管端"""
+    ch1_enc = node.get("ch1_enc")
+    legacy = node.get("sendkey_enc")
+    use1, use1_code = (ch1_enc, code+"_1") if ch1_enc else (legacy, code) if legacy else (None, code)
+    channels = [("通道1试验员", use1, use1_code),
+                ("通道2质量总监", node.get("ch2_enc"), code+"_2")]
     ok = False
-    sk_enc = node.get("sendkey_enc")
-    if sk_enc:
+    for ch_name, enc, ch_code in channels:
+        if not enc:
+            print(f"[{code}] {ch_name}未绑定")
+            continue
         try:
-            ok = _send(decrypt(code, sk_enc), title, desp)
-            if ok: print(f"[{code}] 已推送{tag}：{title}")
+            if _send(decrypt(ch_code, enc), title, desp):
+                ok = True
+                print(f"[{code}] {ch_name}已推送{tag}：{title}")
         except Exception as e:
-            print(f"[{code}] 推送失败:", e)
-    else:
-        print(f"[{code}] 项目未绑定微信，提醒未发：{title}")
-    if MASTER_ENC:  # 监管端（技术质量部）同步收
+            print(f"[{code}] {ch_name}推送失败:", e)
+    if to_master and MASTER_ENC:
         try:
-            m = _send(decrypt("MASTER", MASTER_ENC), title, desp)
-            if m: print(f"[{code}] 监管端已推送{tag}")
+            if _send(decrypt("MASTER", MASTER_ENC), title, desp):
+                print(f"[{code}] 监管端已推送{tag}")
         except Exception as e:
             print(f"[{code}] 监管端推送失败:", e)
     return ok
@@ -126,6 +133,8 @@ for reg in registry:
     code, lat, lon, name = reg["code"], reg["lat"], reg["lon"], reg["name"]
     node = data["projects"].setdefault(code, {"days": [], "parts": []})
     days = node.setdefault("days", [])
+    if node.get("sendkey_enc") and not node.get("ch1_enc"):
+        node["ch1_enc"] = node["sendkey_enc"]   # 旧绑定迁移为通道1（试验员）
     node["parts"] = [p for p in node.get("parts", []) if p.get("name")]
     # 兼容旧数据：已送检视为7天28天均已送检
     for p in node["parts"]:
@@ -141,8 +150,9 @@ for reg in registry:
                 p["age"] = (TODAY - datetime.date.fromisoformat(pour)).days if pour else 0
             except Exception:
                 p["age"] = 0
-        due7 = [p for p in node["parts"] if p.get("age", 0) >= 7 and not p.get("m7")]
-        due28 = [p for p in node["parts"] if p.get("age", 0) >= 28 and not p.get("m28")]
+        # 到期当天(age==7/28)必提醒；第8/29天起，点了"已试压"才不再提醒
+        due7 = [p for p in node["parts"] if p.get("age", 0) >= 7 and (p.get("age", 0) == 7 or not p.get("m7"))]
+        due28 = [p for p in node["parts"] if p.get("age", 0) >= 28 and (p.get("age", 0) == 28 or not p.get("m28"))]
         if due7 or due28:
             lines = []
             if due7:
@@ -209,7 +219,7 @@ for reg in registry:
     if need600:
         lines = [f"- {p['name']}（浇筑{p.get('pour')}，累计{p['cum']}℃·d）" for p in need600]
         desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
-        push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)")
+        push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)", to_master=False)
 
 with open("data.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
