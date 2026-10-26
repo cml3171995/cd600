@@ -441,7 +441,8 @@
    "parts": [],
    "start_date": "2026-07-31",
    "end_date": "2026-10-25",
-   "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA=="
+   "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
+   "ch1_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA=="
   },
   "10188043": {
    "days": [
@@ -897,7 +898,8 @@
    ],
    "start_date": "2026-07-31",
    "end_date": "2026-10-25",
-   "sendkey_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ=="
+   "sendkey_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
+   "ch1_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ=="
   },
   "10188051": {
    "days": [
@@ -1370,7 +1372,8 @@
    "parts": [],
    "start_date": "2026-07-25",
    "end_date": "2026-10-25",
-   "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw=="
+   "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
+   "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw=="
   },
   "10188247": {
    "days": [
@@ -1965,7 +1968,8 @@
    ],
    "start_date": "2026-07-25",
    "end_date": "2026-10-25",
-   "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg=="
+   "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
+   "ch1_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg=="
   },
   "LEGACY": {
    "days": [
@@ -2572,7 +2576,8 @@
    ],
    "start_date": "2026-07-25",
    "end_date": "2026-10-25",
-   "sendkey_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA=="
+   "sendkey_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA==",
+   "ch1_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA=="
   }
  },
  "master_enc": "p7bY4OiyGcQJ6flvveWTPy1TaS4jp/U0mAd7zHF6JKRuIw=="
