@@ -85,7 +85,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="row" id="unrow2" style="display:none"><button class="red" style="flex:1" onclick="unBind(2)">解除通道2绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261027a</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261027b</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -397,7 +397,9 @@ loadJSON('projects.json',reg=>{
   loadJSON('data.json',d=>{
     DATA=d||{projects:{}};
     DATA.projects=DATA.projects||{};
+    // #new=发布模式：强制从登录页开始（清除记住的编号）
     var h=location.hash.match(/code=([A-Za-z0-9]+)/);
+    if(location.hash.indexOf('new')>=0){localStorage.removeItem('cd600_code');}
     var c=h?h[1]:localStorage.getItem('cd600_code');
     if(c&&REG.find(x=>x.code===c)){document.getElementById('code').value=c;enter(c);}
     else document.getElementById('login').style.display='block';
