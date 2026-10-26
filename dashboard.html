@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>监管看板 · 青岛公司试块自检、送检提醒小程序2.0</title>
+<style>
+:root{--blue:#005BAC;--bg:#f4f7fb}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:var(--bg);padding:14px;max-width:720px;margin:0 auto;color:#222;padding-bottom:30px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,60,120,.08)}
+h1{font-size:19px;color:var(--blue);text-align:center;margin-bottom:3px}
+.sub{text-align:center;color:#888;font-size:12px}
+input{padding:11px;border:1px solid #d5dee8;border-radius:10px;font-size:16px;width:100%;text-align:center;letter-spacing:4px}
+button{padding:11px 16px;border:0;border-radius:10px;font-size:15px;color:#fff;background:var(--blue)}
+.row{display:flex;gap:8px;margin-top:10px}
+.row>button{flex:1}
+.tip{font-size:13px;color:#c0392b;text-align:center;min-height:18px;margin-top:8px}
+#sum{display:flex;gap:8px;margin-bottom:14px;text-align:center}
+#sum .g{flex:1;background:#fff;border-radius:12px;padding:10px 4px;box-shadow:0 2px 8px rgba(0,60,120,.06)}
+#sum b{display:block;font-size:22px;color:var(--blue)}
+#sum span{font-size:11px;color:#888}
+.pj{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pj .n{font-size:16px;font-weight:600}
+.pj .m{font-size:12px;color:#888;margin-top:3px}
+.st{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.tag{font-size:11px;border-radius:6px;padding:2px 8px}
+.enter{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:10px 18px;font-size:14px;white-space:nowrap}
+.empty{text-align:center;color:#999;padding:14px 0;font-size:14px}
+footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="card">
+    <h1>监管看板</h1>
+    <div class="sub">青岛公司试块自检、送检提醒小程序 2.0 · 技术质量部</div>
+    <div class="row"><input id="pin" inputmode="numeric" placeholder="请输入监管口令"></div>
+    <div class="row"><button onclick="go()">进 入 看 板</button></div>
+    <div class="tip" id="gtip"></div>
+  </div>
+</div>
+<div id="main" style="display:none">
+  <div class="card">
+    <h1>监管看板</h1>
+    <div class="sub">点击项目卡片直达其应用 · <span id="upd"></span></div>
+  </div>
+  <div id="sum"></div>
+  <div id="list"></div>
+  <footer>数据每天8:00/16:00自动更新</footer>
+</div>
+<script>
+var G={owner:'cml3171995',repo:'cd600',token:'gh'+'p_'+'pUrZQtbIYaRokeCDNFFhKxa5Us7PCE3xeHdt'};
+var PIN='8888';
+var REG=null,DATA=null;
+
+function FF(u,o,t){o=o||{};if(typeof AbortController!=='undefined'){var c=new AbortController();var id=setTimeout(function(){c.abort();},t||9000);o.signal=c.signal;return fetch(u,o).then(function(x){clearTimeout(id);return x;},function(e){clearTimeout(id);throw e;});}return fetch(u,o);}
+function getJSON(path,cb){
+  FF('https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/'+path+'?t='+Date.now(),
+    {headers:{'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json'},cache:'no-store'})
+  .then(r=>r.json()).then(j=>{
+    if(!j.content){cb(null);return;}
+    cb(JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g,''))))));
+  }).catch(()=>cb(null));
+}
+function go(){
+  var v=document.getElementById('pin').value.trim();
+  if(v===PIN){sessionStorage.setItem('db_ok','1');show();}
+  else document.getElementById('gtip').textContent='口令不对，请重试';
+}
+function show(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('main').style.display='block';
+  render();
+}
+function dueCount(p){ // 试压到期数（与后端口径一致：到期当天必提醒）
+  var age=p.age;
+  if(age==null&&p.pour){age=Math.floor((Date.now()-new Date(p.pour+'T00:00:00+08:00'))/864e5);}
+  return (age>=7&&(age==7||!p.m7)?1:0)+(age>=28&&(age==28||!p.m28)?1:0);
+}
+function render(){
+  if(!REG||!DATA)return;
+  var tot600=0,totdue=0,totp=0;
+  var html='';
+  REG.forEach(function(pj){
+    var node=DATA.projects[pj.code]||{days:[],parts:[]};
+    var parts=node.parts||[],n600=0,ndue=0;
+    parts.forEach(function(p){
+      if((p.cum||0)>=600&&!p.sent)n600++;
+      ndue+=dueCount(p);
+    });
+    tot600+=n600;totdue+=ndue;totp+=parts.length;
+    var tags='';
+    if(n600)tags+='<span class="tag" style="background:#e8f1fa;color:var(--blue)">600℃·d待评估 '+n600+'</span>';
+    if(ndue)tags+='<span class="tag" style="background:#fdf0e3;color:#c07818">试压到期 '+ndue+'</span>';
+    if(!tags)tags='<span class="tag" style="background:#e6f4ea;color:#1e8e4e">无待办</span>';
+    var bind=(node.ch1_enc?1:0)+(node.ch2_enc?1:0);
+    html+='<div class="card pj"><div style="flex:1;min-width:0">'+
+      '<div class="pj"><div class="n">'+pj.name+'</div><button class="enter" onclick="location=\'index.html?r=1#code='+pj.code+'\'">进入 →</button></div>'+
+      '<div class="m">'+pj.code+' · '+pj.addr+' · 温度'+(node.days||[]).length+'天 · 部位'+parts.length+'个 · 提醒通道'+bind+'/2</div>'+
+      '<div class="st">'+tags+'</div>'+
+    '</div></div>';
+  });
+  document.getElementById('list').innerHTML=html||'<div class="card empty">暂无项目</div>';
+  document.getElementById('sum').innerHTML=
+    '<div class="g"><b>'+REG.length+'</b><span>项目数</span></div>'+
+    '<div class="g"><b>'+totp+'</b><span>工程部位</span></div>'+
+    '<div class="g"><b>'+tot600+'</b><span>600待评估</span></div>'+
+    '<div class="g"><b>'+totdue+'</b><span>试压到期</span></div>';
+  var ed='';REG.forEach(function(p){var n=DATA.projects[p.code]||{};if(n.end_date&&n.end_date>ed)ed=n.end_date;});document.getElementById('upd').textContent=ed?'更新至 '+ed:'';
+}
+getJSON('projects.json',r=>{REG=r||[];});
+getJSON('data.json',d=>{DATA=d||{projects:{}};render();});
+document.getElementById('pin').addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+if(sessionStorage.getItem('db_ok')==='1'||location.hash.indexOf('pin=')>=0){show();}
+</script>
+</body>
+</html>
