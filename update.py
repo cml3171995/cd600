@@ -12,6 +12,7 @@ import json, os, urllib.request, urllib.parse, base64, datetime
 TZ = datetime.timezone(datetime.timedelta(hours=8))
 TODAY = datetime.datetime.now(TZ).date()
 TARGET = float(os.environ.get("TARGET", "600"))
+MODE = os.environ.get("RUN_MODE", "full")   # full=08:00数据+600提醒；milestone=16:00试压到期提醒
 SALT = "JZ600-2026-QD-4B"
 
 FORECAST = ("https://api.open-meteo.com/v1/forecast"
@@ -86,28 +87,40 @@ def estimate_date(cum, last_date, climate):
         if c >= TARGET: return d.isoformat()
     return ""
 
-def push(code, node, title, desp):
-    sk_enc = node.get("sendkey_enc")
-    if not sk_enc:
-        print(f"[{code}] 未绑定微信，提醒未发：{title}")
+MASTER_ENC = None  # 运行时由主流程注入
+
+def _send(key, title, desp):
+    r = http(f"https://sctapi.ftqq.com/{key}.send", {"title": title, "desp": desp}, form=True)
+    if r.get("code") != 0:
+        print("推送异常:", r)
         return False
-    try:
-        key = decrypt(code, sk_enc)
-        r = http(f"https://sctapi.ftqq.com/{key}.send",
-                 {"title": title, "desp": desp}, form=True)
-        if r.get("code") == 0:
-            print(f"[{code}] 已推送：{title}")
-            return True
-        print(f"[{code}] 推送异常:", r)
-    except Exception as e:
-        print(f"[{code}] 推送失败:", e)
-    return False
+    return True
+
+def push(code, node, title, desp, tag=""):
+    ok = False
+    sk_enc = node.get("sendkey_enc")
+    if sk_enc:
+        try:
+            ok = _send(decrypt(code, sk_enc), title, desp)
+            if ok: print(f"[{code}] 已推送{tag}：{title}")
+        except Exception as e:
+            print(f"[{code}] 推送失败:", e)
+    else:
+        print(f"[{code}] 项目未绑定微信，提醒未发：{title}")
+    if MASTER_ENC:  # 监管端（技术质量部）同步收
+        try:
+            m = _send(decrypt("MASTER", MASTER_ENC), title, desp)
+            if m: print(f"[{code}] 监管端已推送{tag}")
+        except Exception as e:
+            print(f"[{code}] 监管端推送失败:", e)
+    return ok
 
 with open("projects.json", encoding="utf-8") as f:
     registry = json.load(f)
 with open("data.json", encoding="utf-8") as f:
     data = json.load(f)
 data.setdefault("projects", {})
+MASTER_ENC = data.get("master_enc")
 
 for reg in registry:
     code, lat, lon, name = reg["code"], reg["lat"], reg["lon"], reg["name"]
@@ -119,6 +132,29 @@ for reg in registry:
         if p.get("sent"):
             p.setdefault("m7", 1); p.setdefault("m28", 1)
     have = {x["date"]: x for x in days}
+
+    if MODE == "milestone":
+        # 16:00 试压提醒专跑：只算龄期，不动温度数据
+        for p in node["parts"]:
+            pour = p.get("pour", "")[:10]
+            try:
+                p["age"] = (TODAY - datetime.date.fromisoformat(pour)).days if pour else 0
+            except Exception:
+                p["age"] = 0
+        due7 = [p for p in node["parts"] if p.get("age", 0) >= 7 and not p.get("m7")]
+        due28 = [p for p in node["parts"] if p.get("age", 0) >= 28 and not p.get("m28")]
+        if due7 or due28:
+            lines = []
+            if due7:
+                lines.append("【7天试压到期】")
+                lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due7]
+            if due28:
+                lines.append("")
+                lines.append("【28天试压到期】")
+                lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28]
+            desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines) +                    "\n\n试块试压完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
+            push(code, node, f"【试压提醒】{name} 7天{len(due7)}个/28天{len(due28)}个到期", desp, tag="(试压)")
+        continue
 
     # 1) 最近92天实测（末尾一天是今天的预报，不计入）
     try:
@@ -173,23 +209,7 @@ for reg in registry:
     if need600:
         lines = [f"- {p['name']}（浇筑{p.get('pour')}，累计{p['cum']}℃·d）" for p in need600]
         desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
-        push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp)
-
-    # 4b) 7天/28天 每日汇总提醒
-    due7 = [p for p in node["parts"] if p.get("age", 0) >= 7 and not p.get("m7")]
-    due28 = [p for p in node["parts"] if p.get("age", 0) >= 28 and not p.get("m28")]
-    if due7 or due28:
-        lines = []
-        if due7:
-            lines.append("【7天试压到期】")
-            lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due7]
-        if due28:
-            lines.append("")
-            lines.append("【28天试压到期】")
-            lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28]
-        desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines) + \
-               "\n\n试块试压完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
-        push(code, node, f"【试块提醒】{name} 7天{len(due7)}个/28天{len(due28)}个待送检", desp)
+        push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)")
 
 with open("data.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
