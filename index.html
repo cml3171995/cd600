@@ -75,7 +75,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="row" id="unbindrow" style="display:none"><button class="red" style="flex:1" onclick="unBind()">解除绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261026a</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261026b</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -265,18 +265,28 @@ function render(){
     var chips='';
     if(age>=7&&!p.m7)chips+='<span class="badge" style="background:#fdf0e3;color:#c07818">⏰ 7天试压到期</span> ';
     if(age>=28&&!p.m28)chips+='<span class="badge" style="background:#fdeaea;color:#c0392b">⏰ 28天试压到期</span> ';
-    c.style.opacity=sink?'.62':'1';
+    var sink=p.sent||(p.m7&&p.m28);
+    var age=p.age!=null?p.age:Math.floor((Date.now()-new Date(p.pour+'T00:00:00+08:00'))/864e5);
+    var ymd=p.pour.replace(/-/g,'年',1).replace(/-/g,'月',1)+'日';
+    var done7=!!p.m7,done28=!!p.m28,done600=!!p.sent;
+    function bn(label,bg,fn){return '<button style="background:'+bg+';color:#fff;border:0;border-radius:10px;padding:12px 0;font-size:15px;flex:1;min-width:0" data-n="'+p.name+'" onclick="'+fn+'(this.dataset.n)">'+label+'</button>';}
+    var c=document.createElement('div');c.className='card';
+    c.style.opacity=sink?'.72':'1';
     c.innerHTML=
-      '<div class="pmeta"><span class="pname">'+(sink?'📦':'')+p.name+'<small>浇筑 '+p.pour+' · 第'+age+'天</small></span>'+
-      '<span>'+chips+
-        (p.sent?'<span class="badge">已送检</span>':'')+
-        '<button style="background:'+(p.m7?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="milestone(this.dataset.n,7)">'+(p.m7?'7天✓':'7天试压')+'</button>'+
-        '<button style="background:'+(p.m28?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="milestone(this.dataset.n,28)">'+(p.m28?'28天✓':'28天试压')+'</button>'+
-        '<button style="background:'+(sink?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)">'+(p.sent?'取消送检':'600✓')+'</button>'+
-        '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>'+
-      '</span></div>'+
-      '<div class="pmeta"><span class="pcum">'+cum+'<small> ℃·d / '+tgt+'</small></span>'+
-      '<div style="font-size:12px;color:#888;margin-top:4px">'+(cum>=600?'✅ 已达标':(p.est?'📅 预计达标：'+p.est+'（按近一年月均温预测，供参考）':'📅 预计达标：待次日更新'))+'</div>';
+      // 第一行：部位信息条
+      '<div style="background:var(--blue);color:#fff;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center">'+p.name+'　'+ymd+'浇筑·第'+age+'天</div>'+
+      // 第二行：操作按钮
+      '<div style="display:flex;gap:10px;margin-top:10px">'+
+        bn(done7?'7天✓':'7天试压',done7?'#8a97a5':'#4A76C9','milestone7')+
+        bn(done28?'28天✓':'28天试压',done28?'#8a97a5':'#4A76C9','milestone28')+
+        bn(done600?'600✓':'600℃·d送检',done600?'#8a97a5':'#4A76C9','send600')+
+        bn('删除','#C00000','delPart')+
+      '</div>'+
+      // 第三行：累计+预测条
+      '<div style="background:var(--blue);color:#fff;border-radius:10px;padding:11px 12px;font-size:15px;text-align:center;margin-top:10px">'+cum+'℃·d / 600℃·d'+
+        (cum>=600?'　✅已达标':'　预计达标'+(p.est||'待次日'))+
+        ((done7||done28||done600)?'　'+(done7?'7✓':'')+(done28?'28✓':'')+(done600?'600✓':''):'')+
+      '</div>';
     el.appendChild(c);
   });
 }
@@ -296,6 +306,9 @@ function milestone(name,dt){ // 7天/28天试块送检确认
   else{
     if(delArm!=='m'+key+name){delArm='m'+key+name;tip('再点一次「取消'+dt+'天试压」确认');setTimeout(()=>{delArm=null;},3000);return;}
     delArm=null;p[key]=0;save(render);tip('「'+name+'」已恢复为'+dt+'天待试压');
+function milestone7(n){milestone(n,7);}
+function milestone28(n){milestone(n,28);}
+function send600(n){sentPart(n);}
   }
 }
 /* ---- 微信提醒绑定 ---- */
