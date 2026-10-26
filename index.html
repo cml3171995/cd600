@@ -69,13 +69,23 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="tip" id="tip"></div>
   </div>
   <div class="card" id="bindcard" style="display:none">
-    <div class="pname" style="margin-bottom:6px">🔔 微信提醒绑定</div>
-    <div style="font-size:13px;color:#666;line-height:1.7">① 微信扫码登录 <b>sct.ftqq.com</b>（右上角登录）<br>② 复制首页 <b>SCT</b> 开头的 SendKey，粘贴到下方<br>③ 点「绑定」——本项目满600℃·d自动微信提醒绑定人<br><span style="color:#999">免费版每天最多5条，本项目足够；换手机微信时点「解除绑定」重绑</span></div>
-    <div class="row"><input id="sendkey" placeholder="粘贴 SCT 开头的 SendKey"><button onclick="doBind()">绑定</button></div>
-    <div class="row" id="unbindrow" style="display:none"><button class="red" style="flex:1" onclick="unBind()">解除绑定</button></div>
+    <div class="pname" style="margin-bottom:6px">🔔 微信提醒绑定（两通道独立）</div>
+    <div style="font-size:13px;color:#666;line-height:1.7">① 微信扫码登录 <b>sct.ftqq.com</b>（右上角登录）<br>② 复制首页 <b>SCT</b> 开头的 SendKey，粘贴到对应通道<br>③ 每天提醒：<b>8点</b>=600℃·d到期；<b>16点</b>=7天/28天试压到期</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <b style="font-size:14px">通道1 · 项目试验员</b>
+      <span id="st1" class="badge" style="display:none">✓已绑定</span>
+    </div>
+    <div class="row"><input id="sendkey1" placeholder="粘贴试验员的 SendKey"><button onclick="doBind(1)">绑定</button></div>
+    <div class="row" id="unrow1" style="display:none"><button class="red" style="flex:1" onclick="unBind(1)">解除通道1绑定</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <b style="font-size:14px">通道2 · 项目质量总监</b>
+      <span id="st2" class="badge" style="display:none">✓已绑定</span>
+    </div>
+    <div class="row"><input id="sendkey2" placeholder="粘贴质量总监的 SendKey"><button onclick="doBind(2)">绑定</button></div>
+    <div class="row" id="unrow2" style="display:none"><button class="red" style="flex:1" onclick="unBind(2)">解除通道2绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261026d</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261026e</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -318,45 +328,47 @@ function send600(n){sentPart(n);}
   }
 }
 /* ---- 微信提醒绑定 ---- */
+function chEnc(code,ch){return code+'_'+ch;}
 function refreshBind(){
   var b=document.getElementById('bindbtn');
-  b.textContent=CUR.sendkey_enc?'🔔已绑定 ✓':'🔔绑定提醒';
-  b.className=CUR.sendkey_enc?'small':'gray';
+  var n=(CUR.ch1_enc?1:0)+(CUR.ch2_enc?1:0);
+  b.textContent=n==2?'🔔已绑定2通道 ✓':(n==1?'🔔已绑定1通道':'🔔绑定提醒');
+  b.className=n?'small':'gray';
+  ['1','2'].forEach(function(i){
+    var enc=CUR['ch'+i+'_enc'];
+    document.getElementById('st'+i).style.display=enc?'inline-block':'none';
+    document.getElementById('unrow'+i).style.display=enc?'flex':'none';
+  });
 }
 function openBind(){
   var c=document.getElementById('bindcard');
   c.style.display=c.style.display==='none'?'block':'none';
 }
-function refreshBind(){
-  var b=document.getElementById('bindbtn');
-  b.textContent=CUR.sendkey_enc?'🔔已绑定 ✓':'🔔绑定提醒';
-  b.className=CUR.sendkey_enc?'small':'gray';
-  document.getElementById('unbindrow').style.display=CUR.sendkey_enc?'flex':'none';
-}
-function doBind(){
-  var k=document.getElementById('sendkey').value.trim();
+function doBind(ch){
+  var inp=document.getElementById('sendkey'+ch);
+  var k=inp.value.trim();
   if(!/^SCT[0-9A-Za-z]{10,}$/.test(k)) return tip('❌ SendKey 格式不对，应以 SCT 开头');
-  CUR.sendkey_enc=xenc(CODE,k);
+  CUR['ch'+ch+'_enc']=xenc(chEnc(CODE,ch),k);
   save(()=>{
-    refreshBind();document.getElementById('sendkey').value='';
-    // 绑定成功，用隐藏iframe表单提交发确认消息（最兼容，不受跨域限制）
+    refreshBind();inp.value='';
+    // 绑定成功确认消息（隐藏iframe表单，最兼容）
     var pj=REG.find(x=>x.code===CODE)||{name:CODE};
     try{
       var f=document.createElement('form');f.method='POST';f.target='sndfm';
       f.action='https://sctapi.ftqq.com/'+k+'.send';
       var mk=function(n,v){var i=document.createElement('input');i.type='hidden';i.name=n;i.value=v;f.appendChild(i);};
-      mk('title','【600℃·d】微信提醒绑定成功');
-      mk('desp','项目：'+pj.name+'（'+CODE+'）\n\n绑定成功！\n此后本项目任一工程部位同条件养护累计满600℃·d，将自动推送到本微信（消息注明项目与部位）。\n\n绑定时间：'+new Date().toLocaleString('zh-CN'));
+      mk('title','【600℃·d】微信绑定成功（'+(ch==1?'通道1·试验员':'通道2·质量总监')+'）');
+      mk('desp','项目：'+pj.name+'（'+CODE+'）\n\n绑定成功！每天8点收600℃·d到期提醒，16点收7天/28天试压到期提醒（项目名+部位名单）。');
       document.body.appendChild(f);f.submit();setTimeout(()=>f.remove(),5000);
-      tip('✅ 绑定成功，确认消息已发出，请查看微信「方糖」服务号');
-    }catch(e){tip('✅ 绑定成功（确认消息发送异常，但绑定已生效）');}
+      tip('✅ 通道'+ch+'绑定成功，确认消息已发到绑定人微信');
+    }catch(e){tip('✅ 通道'+ch+'绑定成功');}
   });
   tip('正在保存…');
 }
-function unBind(){
-  if(delArm!=='unbind'){delArm='unbind';tip('再点一次「解除绑定」确认');setTimeout(()=>{delArm=null;},3000);return;}
+function unBind(ch){
+  if(delArm!=='u'+ch){delArm='u'+ch;tip('再点一次「解除通道'+ch+'绑定」确认');setTimeout(()=>{delArm=null;},3000);return;}
   delArm=null;
-  delete CUR.sendkey_enc;save(refreshBind);tip('已解除绑定');
+  delete CUR['ch'+ch+'_enc'];save(refreshBind);tip('已解除通道'+ch+'绑定');
 }
 
 function dl(){
