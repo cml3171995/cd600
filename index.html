@@ -254,37 +254,50 @@ function render(){
   // 排序：未送检在前按浇筑时间升序（最快达标的在最上），已送检沉底
   var dm={};days.forEach(x=>dm[x.date]=x.eff);
   for(var k in BK){if(!(k in dm))dm[k]=BK[k];}
-  CUR.parts.slice().sort((a,b)=>(a.sent?1:0)-(b.sent?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
+  CUR.parts.slice().sort((a,b)=>((a.sent||(a.m7&&a.m28))?1:0)-((b.sent||(b.m7&&b.m28))?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
     var rows=Object.keys(dm).filter(x=>x>=(p.pour||'9999')).sort().map(x=>({date:x,eff:dm[x]}));
     var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
     var nday=rows.length,last=rows.length?rows[rows.length-1].date:'';
     var tgt=600,pct=Math.min(100,cum/tgt*100),done=cum>=tgt;
     var c=document.createElement('div');c.className='card';
-    c.style.opacity=p.sent?'.62':'1';
+    var sink=p.sent||(p.m7&&p.m28);
+    var age=p.age!=null?p.age:Math.floor((Date.now()-new Date(p.pour+'T00:00:00+08:00'))/864e5);
+    var chips='';
+    if(age>=7&&!p.m7)chips+='<span class="badge" style="background:#fdf0e3;color:#c07818">⏰ 7天试块到期</span> ';
+    if(age>=28&&!p.m28)chips+='<span class="badge" style="background:#fdeaea;color:#c0392b">⏰ 28天试块到期</span> ';
+    c.style.opacity=sink?'.62':'1';
     c.innerHTML=
-      '<div class="pmeta"><span class="pname">'+(p.sent?'📦':'')+p.name+'<small>浇筑 '+p.pour+'</small></span>'+
-      '<span>'+
+      '<div class="pmeta"><span class="pname">'+(sink?'📦':'')+p.name+'<small>浇筑 '+p.pour+' · 第'+age+'天</small></span>'+
+      '<span>'+chips+
         (p.sent?'<span class="badge">已送检</span>':'')+
-        '<button style="background:'+(p.sent?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 10px;font-size:13px;margin-right:10px" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)">'+(p.sent?'取消送检':'已送检')+'</button>'+
+        '<button style="background:'+(p.m7?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="milestone(this.dataset.n,7)">'+(p.m7?'7天✓':'7天送检')+'</button>'+
+        '<button style="background:'+(p.m28?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="milestone(this.dataset.n,28)">'+(p.m28?'28天✓':'28天送检')+'</button>'+
+        '<button style="background:'+(sink?'#8a97a5':'#1e8e4e')+';color:#fff;padding:5px 8px;font-size:13px;margin-right:8px;border-radius:8px" data-n="'+p.name+'" onclick="sentPart(this.dataset.n)">'+(p.sent?'取消送检':'600✓')+'</button>'+
         '<button class="red" data-n="'+p.name+'" onclick="delPart(this.dataset.n)">删除</button>'+
       '</span></div>'+
-      '<div class="bar"><i class="'+(done?'done':'')+'" style="width:'+pct+'%"></i></div>'+
       '<div class="pmeta"><span class="pcum">'+cum+'<small> ℃·d / '+tgt+'</small></span>'+
-      '<span>'+pct.toFixed(1)+'% · '+nday+'天 · 至'+(last||'温度回补中')+'</span></div>'+
       '<div style="font-size:12px;color:#888;margin-top:4px">'+(cum>=600?'✅ 已达标':(p.est?'📅 预计达标：'+p.est+'（按近一年月均温预测，供参考）':'📅 预计达标：待次日更新'))+'</div>';
     el.appendChild(c);
   });
 }
 
-function sentPart(name){
+function sentPart(name){ // 600℃·d评估完成确认
   var p=CUR.parts.find(x=>x.name===name);if(!p)return;
-  if(!p.sent){p.sent=1;save(render);tip('「'+name+'」已标记送检，已移至列表末尾');}
+  if(!p.sent){p.sent=1;save(render);tip('「'+name+'」已确认600℃·d评估完成，移至列表末尾');}
   else{
-    if(delArm!=='s'+name){delArm='s'+name;tip('再点一次「取消送检」确认');setTimeout(()=>{delArm=null;},3000);return;}
-    delArm=null;p.sent=0;save(render);tip('「'+name+'】已恢复为未送检');
+    if(delArm!=='s'+name){delArm='s'+name;tip('再点一次「取消」确认');setTimeout(()=>{delArm=null;},3000);return;}
+    delArm=null;p.sent=0;save(render);tip('「'+name+'」已恢复为待评估');
   }
 }
-
+function milestone(name,dt){ // 7天/28天试块送检确认
+  var p=CUR.parts.find(x=>x.name===name);if(!p)return;
+  var key=dt===7?'m7':'m28';
+  if(!p[key]){p[key]=1;save(render);tip('「'+name+'」'+dt+'天试块已送检，微信不再提醒');}
+  else{
+    if(delArm!=='m'+key+name){delArm='m'+key+name;tip('再点一次「取消'+dt+'天送检」确认');setTimeout(()=>{delArm=null;},3000);return;}
+    delArm=null;p[key]=0;save(render);tip('「'+name+'」已恢复为'+dt+'天待送检');
+  }
+}
 /* ---- 微信提醒绑定 ---- */
 function refreshBind(){
   var b=document.getElementById('bindbtn');
