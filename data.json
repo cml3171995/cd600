@@ -3,6 +3,26 @@
   "10183716": {
    "days": [
     {
+     "date": "2026-07-27",
+     "temp": 27.8,
+     "eff": 27.8
+    },
+    {
+     "date": "2026-07-28",
+     "temp": 28.0,
+     "eff": 28.0
+    },
+    {
+     "date": "2026-07-29",
+     "temp": 28.0,
+     "eff": 28.0
+    },
+    {
+     "date": "2026-07-30",
+     "temp": 29.1,
+     "eff": 29.1
+    },
+    {
      "date": "2026-07-31",
      "temp": 29.7,
      "eff": 29.7
@@ -436,16 +456,41 @@
      "date": "2026-10-25",
      "temp": 16.9,
      "eff": 16.9
+    },
+    {
+     "date": "2026-10-26",
+     "temp": 15.4,
+     "eff": 15.4
     }
    ],
    "parts": [],
-   "start_date": "2026-07-31",
-   "end_date": "2026-10-25",
+   "start_date": "2026-07-27",
+   "end_date": "2026-10-26",
    "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
    "ch1_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA=="
   },
   "10188043": {
    "days": [
+    {
+     "date": "2026-07-27",
+     "temp": 28.6,
+     "eff": 28.6
+    },
+    {
+     "date": "2026-07-28",
+     "temp": 30.7,
+     "eff": 30.7
+    },
+    {
+     "date": "2026-07-29",
+     "temp": 31.1,
+     "eff": 31.1
+    },
+    {
+     "date": "2026-07-30",
+     "temp": 31.3,
+     "eff": 31.3
+    },
     {
      "date": "2026-07-31",
      "temp": 32.7,
@@ -880,6 +925,11 @@
      "date": "2026-10-25",
      "temp": 15.8,
      "eff": 15.8
+    },
+    {
+     "date": "2026-10-26",
+     "temp": 13.8,
+     "eff": 13.8
     }
    ],
    "parts": [
@@ -887,17 +937,17 @@
      "name": "综合楼承台及地梁",
      "pour": "2026-10-09",
      "notified": false,
-     "cum": 289.8,
-     "nday": 17,
-     "last": "2026-10-25",
+     "cum": 303.6,
+     "nday": 18,
+     "last": "2026-10-26",
      "est": "2027-03-16",
-     "age": 17,
+     "age": 18,
      "sent": 0,
      "m7": 1
     }
    ],
-   "start_date": "2026-07-31",
-   "end_date": "2026-10-25",
+   "start_date": "2026-07-27",
+   "end_date": "2026-10-26",
    "sendkey_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
    "ch1_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
    "ch2_enc": "BBu+AwvSv2SodEzhuHU8uZauMOHYDZn7RtM4gTXKPnXBiw=="
@@ -1368,11 +1418,16 @@
      "date": "2026-10-25",
      "temp": 16.4,
      "eff": 16.4
+    },
+    {
+     "date": "2026-10-26",
+     "temp": 15.0,
+     "eff": 15.0
     }
    ],
    "parts": [],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-25",
+   "end_date": "2026-10-26",
    "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
    "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
    "ch2_enc": "BRS9AgjTv2umS3nksSkzoYWGGtXvHLenONYIi1L7DFXe9w=="
@@ -1843,6 +1898,11 @@
      "date": "2026-10-25",
      "temp": 16.5,
      "eff": 16.5
+    },
+    {
+     "date": "2026-10-26",
+     "temp": 15.3,
+     "eff": 15.3
     }
    ],
    "parts": [
@@ -1850,127 +1910,127 @@
      "name": "1号楼1-7轴基础承台",
      "pour": "2026-09-15",
      "notified": true,
-     "cum": 812,
-     "nday": 41,
-     "last": "2026-10-25",
+     "cum": 827.3,
+     "nday": 42,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 41
+     "age": 42
     },
     {
      "name": "1号楼7-15轴承台",
      "pour": "2026-09-17",
      "notified": true,
-     "cum": 763.5,
-     "nday": 39,
-     "last": "2026-10-25",
+     "cum": 778.8,
+     "nday": 40,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 39
+     "age": 40
     },
     {
      "name": "1号楼桩芯",
      "pour": "2026-09-03",
      "notified": true,
-     "cum": 1088.8,
-     "nday": 53,
-     "last": "2026-10-25",
+     "cum": 1104.1,
+     "nday": 54,
+     "last": "2026-10-26",
      "est": "已达标",
      "sent": 0,
-     "age": 53,
+     "age": 54,
      "m7": 0
     },
     {
      "name": "4号楼桩芯",
      "pour": "2026-09-08",
      "notified": true,
-     "cum": 968.1,
-     "nday": 48,
-     "last": "2026-10-25",
+     "cum": 983.4,
+     "nday": 49,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 48
+     "age": 49
     },
     {
      "name": "6号楼桩芯",
      "pour": "2026-09-08",
      "notified": true,
-     "cum": 968.1,
-     "nday": 48,
-     "last": "2026-10-25",
+     "cum": 983.4,
+     "nday": 49,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 48
+     "age": 49
     },
     {
      "name": "4号楼1-5轴基础承台",
      "pour": "2026-09-17",
      "notified": true,
-     "cum": 763.5,
-     "nday": 39,
-     "last": "2026-10-25",
+     "cum": 778.8,
+     "nday": 40,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 39
+     "age": 40
     },
     {
      "name": "1号楼1-15轴短柱",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 621.1,
-     "nday": 33,
-     "last": "2026-10-25",
+     "cum": 636.4,
+     "nday": 34,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 33
+     "age": 34
     },
     {
      "name": "6号楼基础承台",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 621.1,
-     "nday": 33,
-     "last": "2026-10-25",
+     "cum": 636.4,
+     "nday": 34,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 33
+     "age": 34
     },
     {
      "name": "5号楼桩芯",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 621.1,
-     "nday": 33,
-     "last": "2026-10-25",
+     "cum": 636.4,
+     "nday": 34,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 33
+     "age": 34
     },
     {
      "name": "3号楼桩芯",
      "pour": "2026-10-02",
      "notified": false,
-     "cum": 430.8,
-     "nday": 24,
-     "last": "2026-10-25",
+     "cum": 446.1,
+     "nday": 25,
+     "last": "2026-10-26",
      "est": "2026-11-09",
-     "age": 24
+     "age": 25
     },
     {
      "name": "2号楼桩芯",
      "pour": "2026-10-03",
      "notified": false,
-     "cum": 413.8,
-     "nday": 23,
-     "last": "2026-10-25",
+     "cum": 429.1,
+     "nday": 24,
+     "last": "2026-10-26",
      "est": "2026-11-11",
-     "age": 23
+     "age": 24
     },
     {
      "name": "5号楼基础承台",
      "pour": "2026-10-11",
      "notified": false,
-     "cum": 263.1,
-     "nday": 15,
-     "last": "2026-10-25",
+     "cum": 278.4,
+     "nday": 16,
+     "last": "2026-10-26",
      "est": "2026-11-28",
-     "age": 15
+     "age": 16
     }
    ],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-25",
+   "end_date": "2026-10-26",
    "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
    "ch1_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg=="
   },
@@ -2517,6 +2577,11 @@
      "date": "2026-10-25",
      "temp": 16.9,
      "eff": 16.9
+    },
+    {
+     "date": "2026-10-26",
+     "temp": 15.4,
+     "eff": 15.4
     }
    ],
    "parts": [
@@ -2525,60 +2590,60 @@
      "pour": "2026-09-14",
      "notified": true,
      "sent": 1,
-     "cum": 839.8,
-     "nday": 42,
-     "last": "2026-10-25",
+     "cum": 855.2,
+     "nday": 43,
+     "last": "2026-10-26",
      "est": "已达标",
      "m7": 1,
      "m28": 1,
-     "age": 42
+     "age": 43
     },
     {
      "name": "1号楼2层",
      "pour": "2026-09-26",
      "notified": false,
-     "cum": 562.1,
-     "nday": 30,
-     "last": "2026-10-25",
+     "cum": 577.5,
+     "nday": 31,
+     "last": "2026-10-26",
      "est": "2026-10-28",
-     "age": 30
+     "age": 31
     },
     {
      "name": "1号楼负1层",
      "pour": "2026-08-30",
      "notified": true,
      "sent": 1,
-     "cum": 1196,
-     "nday": 57,
-     "last": "2026-10-25",
+     "cum": 1211.4,
+     "nday": 58,
+     "last": "2026-10-26",
      "est": "已达标",
      "m7": 1,
      "m28": 1,
-     "age": 57
+     "age": 58
     },
     {
      "name": "2号楼1层",
      "pour": "2026-09-30",
      "notified": false,
-     "cum": 477.4,
-     "nday": 26,
-     "last": "2026-10-25",
-     "est": "2026-11-03",
-     "age": 26
+     "cum": 492.8,
+     "nday": 27,
+     "last": "2026-10-26",
+     "est": "2026-11-04",
+     "age": 27
     },
     {
      "name": "2号楼负1层",
      "pour": "2026-09-16",
      "notified": true,
-     "cum": 793,
-     "nday": 40,
-     "last": "2026-10-25",
+     "cum": 808.4,
+     "nday": 41,
+     "last": "2026-10-26",
      "est": "已达标",
-     "age": 40
+     "age": 41
     }
    ],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-25",
+   "end_date": "2026-10-26",
    "sendkey_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA==",
    "ch1_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA=="
   }
