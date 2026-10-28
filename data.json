@@ -1441,7 +1441,13 @@
      "eff": 13.6
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "12-13/AB-AV轴下沉庭院景观墙（35.40m-37.30m)",
+     "pour": "2026-09-28",
+     "notified": false
+    }
+   ],
    "start_date": "2026-07-25",
    "end_date": "2026-10-27",
    "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
@@ -1931,7 +1937,7 @@
      "name": "1号楼1-7轴基础承台",
      "pour": "2026-09-15",
      "notified": true,
-     "cum": 841.0,
+     "cum": 841,
      "nday": 43,
      "last": "2026-10-27",
      "est": "已达标",
@@ -2645,7 +2651,7 @@
      "pour": "2026-08-30",
      "notified": true,
      "sent": 1,
-     "cum": 1225.0,
+     "cum": 1225,
      "nday": 59,
      "last": "2026-10-27",
      "est": "已达标",
@@ -2667,7 +2673,7 @@
      "name": "2号楼负1层",
      "pour": "2026-09-16",
      "notified": true,
-     "cum": 822.0,
+     "cum": 822,
      "nday": 42,
      "last": "2026-10-27",
      "est": "已达标",
