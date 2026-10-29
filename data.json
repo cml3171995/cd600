@@ -473,7 +473,13 @@
      "eff": 12.7
     }
    ],
-   "parts": [],
+   "parts": [
+    {
+     "name": "2层1-4轴交A-F轴墙柱梁板梯",
+     "pour": "2026-10-28",
+     "notified": false
+    }
+   ],
    "start_date": "2026-07-27",
    "end_date": "2026-10-28",
    "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
