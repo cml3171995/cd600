@@ -466,11 +466,16 @@
      "date": "2026-10-27",
      "temp": 13.6,
      "eff": 13.6
+    },
+    {
+     "date": "2026-10-28",
+     "temp": 12.7,
+     "eff": 12.7
     }
    ],
    "parts": [],
    "start_date": "2026-07-27",
-   "end_date": "2026-10-27",
+   "end_date": "2026-10-28",
    "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
    "ch1_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
    "ch2_enc": "Chm4DXPSu2OodnfQoGtqv4O5BJzxH0uga/YluBb2I0Ld8Q=="
@@ -941,6 +946,11 @@
      "date": "2026-10-27",
      "temp": 11.9,
      "eff": 11.9
+    },
+    {
+     "date": "2026-10-28",
+     "temp": 10.9,
+     "eff": 10.9
     }
    ],
    "parts": [
@@ -948,17 +958,17 @@
      "name": "综合楼承台及地梁",
      "pour": "2026-10-09",
      "notified": false,
-     "cum": 315.5,
-     "nday": 19,
-     "last": "2026-10-27",
+     "cum": 326.4,
+     "nday": 20,
+     "last": "2026-10-28",
      "est": "2027-03-17",
-     "age": 19,
+     "age": 20,
      "sent": 0,
      "m7": 1
     }
    ],
    "start_date": "2026-07-27",
-   "end_date": "2026-10-27",
+   "end_date": "2026-10-28",
    "sendkey_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
    "ch1_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
    "ch2_enc": "BBu+AwvSv2SodEzhuHU8uZauMOHYDZn7RtM4gTXKPnXBiw=="
@@ -1439,6 +1449,11 @@
      "date": "2026-10-27",
      "temp": 13.6,
      "eff": 13.6
+    },
+    {
+     "date": "2026-10-28",
+     "temp": 12.3,
+     "eff": 12.3
     }
    ],
    "parts": [
@@ -1447,119 +1462,195 @@
      "pour": "2026-09-28",
      "notified": false,
      "m7": 1,
-     "age": 30
+     "age": 31,
+     "cum": 560.3,
+     "nday": 31,
+     "last": "2026-10-28",
+     "est": "2026-10-31"
     },
     {
      "name": "27#楼1-5/A-F轴三层墙柱梁板梯",
      "pour": "2026-09-29",
      "notified": false,
-     "age": 29
+     "age": 30,
+     "cum": 538.9,
+     "nday": 30,
+     "last": "2026-10-28",
+     "est": "2026-11-02"
     },
     {
      "name": "28#楼1-17/A-E轴一层墙柱梁板梯",
      "pour": "2026-10-02",
      "notified": false,
-     "age": 26
+     "age": 27,
+     "cum": 476.9,
+     "nday": 27,
+     "last": "2026-10-28",
+     "est": "2026-11-09"
     },
     {
      "name": "23#楼19A-42A/MB-AE轴车库层、局部夹层主楼墙柱梁板梯",
      "pour": "2026-10-04",
      "notified": false,
-     "age": 24
+     "age": 25,
+     "cum": 438.5,
+     "nday": 25,
+     "last": "2026-10-28",
+     "est": "2026-11-14"
     },
     {
      "name": "25#楼1-36/A-K轴四层墙柱梁板梯",
      "pour": "2026-10-05",
      "notified": false,
-     "age": 23
+     "age": 24,
+     "cum": 419.7,
+     "nday": 24,
+     "last": "2026-10-28",
+     "est": "2026-11-16"
     },
     {
      "name": "26#楼1-36/A-K轴架空层梁板",
      "pour": "2026-10-06",
      "notified": false,
-     "age": 22
+     "age": 23,
+     "cum": 402.5,
+     "nday": 23,
+     "last": "2026-10-28",
+     "est": "2026-11-18"
     },
     {
      "name": "28#楼至29#楼中间大堂一层柱梁板",
      "pour": "2026-10-07",
      "notified": false,
-     "age": 21
+     "age": 22,
+     "cum": 383.3,
+     "nday": 22,
+     "last": "2026-10-28",
+     "est": "2026-11-20"
     },
     {
      "name": "28#楼1-17/A-E轴二层梁板梯",
      "pour": "2026-10-11",
      "notified": false,
-     "age": 17
+     "age": 18,
+     "cum": 300.9,
+     "nday": 18,
+     "last": "2026-10-28",
+     "est": "2026-11-30"
     },
     {
      "name": "25#楼1-36/A-K轴五层墙柱梁板梯",
      "pour": "2026-10-14",
      "notified": false,
-     "age": 14
+     "age": 15,
+     "cum": 242.1,
+     "nday": 15,
+     "last": "2026-10-28",
+     "est": "2026-12-24"
     },
     {
      "name": "AV-AQ/12-13轴车库负二层柱梁板",
      "pour": "2026-10-15",
      "notified": false,
-     "age": 13
+     "age": 14,
+     "cum": 225.5,
+     "nday": 14,
+     "last": "2026-10-28",
+     "est": "2026-12-31"
     },
     {
      "name": "AV-BC/12-14轴车库负二层高跨墙柱梁板",
      "pour": "2026-10-19",
      "notified": false,
-     "age": 9
+     "age": 10,
+     "cum": 143.3,
+     "nday": 10,
+     "last": "2026-10-28",
+     "est": "2027-03-13"
     },
     {
      "name": "28#楼1-17/A-E轴三层梁板梯",
      "pour": "2026-10-20",
      "notified": false,
-     "age": 8
+     "age": 9,
+     "cum": 127.5,
+     "nday": 9,
+     "last": "2026-10-28",
+     "est": "2027-03-16"
     },
     {
      "name": "29#楼1-17/A-E轴主楼及车库筏板基础",
      "pour": "2026-10-16",
      "notified": false,
-     "age": 12
+     "age": 13,
+     "cum": 204.6,
+     "nday": 13,
+     "last": "2026-10-28",
+     "est": "2027-03-01"
     },
     {
      "name": "29#楼1-17/A-E轴架空层及周边车库梁板",
      "pour": "2026-10-20",
      "notified": false,
-     "age": 8
+     "age": 9,
+     "cum": 127.5,
+     "nday": 9,
+     "last": "2026-10-28",
+     "est": "2027-03-16"
     },
     {
      "name": "AV-AQ/12-13轴车库负一层柱梁板",
      "pour": "2026-10-21",
      "notified": false,
-     "age": 7
+     "age": 8,
+     "cum": 111.6,
+     "nday": 8,
+     "last": "2026-10-28",
+     "est": "2027-03-19"
     },
     {
      "name": "25#楼1-36/A-K轴六层墙柱梁板梯",
      "pour": "2026-10-23",
      "notified": false,
-     "age": 5
+     "age": 6,
+     "cum": 88.8,
+     "nday": 6,
+     "last": "2026-10-28",
+     "est": "2027-03-23"
     },
     {
      "name": "下沉庭院39.65m处挡墙及挑板",
      "pour": "2026-10-24",
      "notified": false,
-     "age": 4
+     "age": 5,
+     "cum": 73.5,
+     "nday": 5,
+     "last": "2026-10-28",
+     "est": "2027-03-26"
     },
     {
      "name": "29#楼1-17/A-E轴负二层及周边车库墙柱",
      "pour": "2026-10-25",
      "notified": false,
-     "age": 3
+     "age": 4,
+     "cum": 57.3,
+     "nday": 4,
+     "last": "2026-10-28",
+     "est": "2027-03-29"
     },
     {
      "name": "7-27A/AF-AU轴车库筏板基础",
      "pour": "2026-10-28",
      "notified": false,
-     "age": 0
+     "age": 1,
+     "cum": 12.3,
+     "nday": 1,
+     "last": "2026-10-28",
+     "est": "2027-04-04"
     }
    ],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-27",
+   "end_date": "2026-10-28",
    "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
    "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
    "ch2_enc": "BRS9AgjTv2umS3nksSkzoYWGGtXvHLenONYIi1L7DFXe9w=="
@@ -2040,6 +2131,11 @@
      "date": "2026-10-27",
      "temp": 13.7,
      "eff": 13.7
+    },
+    {
+     "date": "2026-10-28",
+     "temp": 12.6,
+     "eff": 12.6
     }
    ],
    "parts": [
@@ -2047,32 +2143,32 @@
      "name": "1号楼1-7轴基础承台",
      "pour": "2026-09-15",
      "notified": true,
-     "cum": 841,
-     "nday": 43,
-     "last": "2026-10-27",
+     "cum": 853.6,
+     "nday": 44,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 43
+     "age": 44
     },
     {
      "name": "1号楼7-15轴承台",
      "pour": "2026-09-17",
      "notified": true,
-     "cum": 792.5,
-     "nday": 41,
-     "last": "2026-10-27",
+     "cum": 805.1,
+     "nday": 42,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 41
+     "age": 42
     },
     {
      "name": "1号楼桩芯",
      "pour": "2026-09-03",
      "notified": true,
-     "cum": 1117.8,
-     "nday": 55,
-     "last": "2026-10-27",
+     "cum": 1130.4,
+     "nday": 56,
+     "last": "2026-10-28",
      "est": "已达标",
      "sent": 1,
-     "age": 55,
+     "age": 56,
      "m7": 1,
      "m28": 1
     },
@@ -2080,11 +2176,11 @@
      "name": "4号楼桩芯",
      "pour": "2026-09-08",
      "notified": true,
-     "cum": 997.1,
-     "nday": 50,
-     "last": "2026-10-27",
+     "cum": 1009.7,
+     "nday": 51,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 50,
+     "age": 51,
      "sent": 0,
      "m7": 0,
      "m28": 1
@@ -2093,86 +2189,86 @@
      "name": "6号楼桩芯",
      "pour": "2026-09-08",
      "notified": true,
-     "cum": 997.1,
-     "nday": 50,
-     "last": "2026-10-27",
+     "cum": 1009.7,
+     "nday": 51,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 50,
+     "age": 51,
      "m7": 1
     },
     {
      "name": "4号楼1-5轴基础承台",
      "pour": "2026-09-17",
      "notified": true,
-     "cum": 792.5,
-     "nday": 41,
-     "last": "2026-10-27",
+     "cum": 805.1,
+     "nday": 42,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 41
+     "age": 42
     },
     {
      "name": "1号楼1-15轴短柱",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 650.1,
-     "nday": 35,
-     "last": "2026-10-27",
+     "cum": 662.7,
+     "nday": 36,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 35
+     "age": 36
     },
     {
      "name": "6号楼基础承台",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 650.1,
-     "nday": 35,
-     "last": "2026-10-27",
+     "cum": 662.7,
+     "nday": 36,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 35
+     "age": 36
     },
     {
      "name": "5号楼桩芯",
      "pour": "2026-09-23",
      "notified": true,
-     "cum": 650.1,
-     "nday": 35,
-     "last": "2026-10-27",
+     "cum": 662.7,
+     "nday": 36,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 35
+     "age": 36
     },
     {
      "name": "3号楼桩芯",
      "pour": "2026-10-02",
      "notified": false,
-     "cum": 459.8,
-     "nday": 26,
-     "last": "2026-10-27",
-     "est": "2026-11-09",
-     "age": 26
+     "cum": 472.4,
+     "nday": 27,
+     "last": "2026-10-28",
+     "est": "2026-11-10",
+     "age": 27
     },
     {
      "name": "2号楼桩芯",
      "pour": "2026-10-03",
      "notified": false,
-     "cum": 442.8,
-     "nday": 25,
-     "last": "2026-10-27",
-     "est": "2026-11-11",
-     "age": 25
+     "cum": 455.4,
+     "nday": 26,
+     "last": "2026-10-28",
+     "est": "2026-11-12",
+     "age": 26
     },
     {
      "name": "5号楼基础承台",
      "pour": "2026-10-11",
      "notified": false,
-     "cum": 292.1,
-     "nday": 17,
-     "last": "2026-10-27",
+     "cum": 304.7,
+     "nday": 18,
+     "last": "2026-10-28",
      "est": "2026-11-29",
-     "age": 17
+     "age": 18
     }
    ],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-27",
+   "end_date": "2026-10-28",
    "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
    "ch1_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
    "ch2_enc": "Dh2kCXHbpmitckvwtnNmoq+pKMXnB0GEcdjZuhbnTXff5w=="
@@ -2730,6 +2826,11 @@
      "date": "2026-10-27",
      "temp": 13.6,
      "eff": 13.6
+    },
+    {
+     "date": "2026-10-28",
+     "temp": 12.7,
+     "eff": 12.7
     }
    ],
    "parts": [
@@ -2738,60 +2839,60 @@
      "pour": "2026-09-14",
      "notified": true,
      "sent": 1,
-     "cum": 868.8,
-     "nday": 44,
-     "last": "2026-10-27",
+     "cum": 881.5,
+     "nday": 45,
+     "last": "2026-10-28",
      "est": "已达标",
      "m7": 1,
      "m28": 1,
-     "age": 44
+     "age": 45
     },
     {
      "name": "1号楼2层",
      "pour": "2026-09-26",
      "notified": false,
-     "cum": 591.1,
-     "nday": 32,
-     "last": "2026-10-27",
-     "est": "2026-10-28",
-     "age": 32
+     "cum": 603.8,
+     "nday": 33,
+     "last": "2026-10-28",
+     "est": "已达标",
+     "age": 33
     },
     {
      "name": "1号楼负1层",
      "pour": "2026-08-30",
      "notified": true,
      "sent": 1,
-     "cum": 1225,
-     "nday": 59,
-     "last": "2026-10-27",
+     "cum": 1237.7,
+     "nday": 60,
+     "last": "2026-10-28",
      "est": "已达标",
      "m7": 1,
      "m28": 1,
-     "age": 59
+     "age": 60
     },
     {
      "name": "2号楼1层",
      "pour": "2026-09-30",
      "notified": false,
-     "cum": 506.4,
-     "nday": 28,
-     "last": "2026-10-27",
+     "cum": 519.1,
+     "nday": 29,
+     "last": "2026-10-28",
      "est": "2026-11-04",
-     "age": 28
+     "age": 29
     },
     {
      "name": "2号楼负1层",
      "pour": "2026-09-16",
      "notified": true,
-     "cum": 822,
-     "nday": 42,
-     "last": "2026-10-27",
+     "cum": 834.7,
+     "nday": 43,
+     "last": "2026-10-28",
      "est": "已达标",
-     "age": 42
+     "age": 43
     }
    ],
    "start_date": "2026-07-25",
-   "end_date": "2026-10-27",
+   "end_date": "2026-10-28",
    "sendkey_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA==",
    "ch1_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA=="
   }
