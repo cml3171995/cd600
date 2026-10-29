@@ -477,13 +477,15 @@
     {
      "name": "2层1-4轴交A-F轴墙柱梁板梯",
      "pour": "2026-10-28",
-     "notified": false
+     "notified": false,
+     "age": 1
     },
     {
      "name": "8-13轴交1/0A-H轴筏板",
      "pour": "2026-10-11",
      "notified": false,
-     "m7": 1
+     "m7": 1,
+     "age": 18
     }
    ],
    "start_date": "2026-07-27",
