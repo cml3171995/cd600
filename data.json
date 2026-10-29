@@ -482,7 +482,8 @@
     {
      "name": "8-13轴交1/0A-H轴筏板",
      "pour": "2026-10-11",
-     "notified": false
+     "notified": false,
+     "m7": 1
     }
    ],
    "start_date": "2026-07-27",
