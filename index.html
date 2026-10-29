@@ -85,7 +85,7 @@ footer{text-align:center;font-size:11px;color:#aaa;margin:4px 0}
     <div class="row" id="unrow2" style="display:none"><button class="red" style="flex:1" onclick="unBind(2)">解除通道2绑定</button></div>
   </div>
   <div id="list"></div>
-  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261027b</footer>
+  <footer>数据每天07:00自动更新（本项目位置实测均温，低于0℃按0计）<br>v20261029a</footer>
 </div>
 
 <div id="mask"><div class="m"><div class="mtxt" id="mtxt"></div><button onclick="hide()">关闭</button></div></div>
@@ -264,13 +264,13 @@ function render(){
   // 排序：未送检在前按浇筑时间升序（最快达标的在最上），已送检沉底
   var dm={};days.forEach(x=>dm[x.date]=x.eff);
   for(var k in BK){if(!(k in dm))dm[k]=BK[k];}
-  CUR.parts.slice().sort((a,b)=>((a.sent||(a.m7&&a.m28))?1:0)-((b.sent||(b.m7&&b.m28))?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
+  CUR.parts.slice().sort((a,b)=>(a.sent?1:0)-(b.sent?1:0)||(a.pour<b.pour?-1:1)).forEach(p=>{
     var rows=Object.keys(dm).filter(x=>x>=(p.pour||'9999')).sort().map(x=>({date:x,eff:dm[x]}));
     var cum=Math.round(rows.reduce((s,x)=>s+x.eff,0)*10)/10;
     var nday=rows.length,last=rows.length?rows[rows.length-1].date:'';
     var tgt=600,pct=Math.min(100,cum/tgt*100),done=cum>=tgt;
     var c=document.createElement('div');c.className='card';
-    var sink=p.sent||(p.m7&&p.m28);
+    var sink=p.sent;   // 仅600送检确认后才整体变灰沉底
     var age=p.age!=null?p.age:Math.floor((Date.now()-new Date(p.pour+'T00:00:00+08:00'))/864e5);
     var chips='';
     if(age>=7&&!p.m7)chips+='<span class="badge" style="background:#fdf0e3;color:#c07818">⏰ 7天试压到期</span> ';
