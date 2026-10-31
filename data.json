@@ -2372,12 +2372,14 @@
     {
      "name": "4号楼一层框架柱",
      "pour": "2026-10-23",
-     "notified": false
+     "notified": false,
+     "age": 8
     },
     {
      "name": "4号楼一层梁板梯",
      "pour": "2026-10-29",
-     "notified": false
+     "notified": false,
+     "age": 2
     }
    ],
    "start_date": "2026-07-25",
