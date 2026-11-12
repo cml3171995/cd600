@@ -602,7 +602,7 @@
    "start_date": "2026-07-27",
    "end_date": "2026-11-11",
    "sendkey_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
-   "ch1_enc": "kIcPl5ljwYk72A26E8UcTnJKri1egSFRHWW/L7hltdxOYA==",
+   "ch1_enc": "Cxq/DAzTvGKrdXbXo2hrvoK6BZ3uHEqhavUkvxf1IkHe8A==",
    "ch2_enc": "Chm4DXPSu2OodnfQoGtqv4O5BJzxH0uga/YluBb2I0Ld8Q=="
   },
   "10188043": {
@@ -1166,7 +1166,7 @@
    "start_date": "2026-07-27",
    "end_date": "2026-11-11",
    "sendkey_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
-   "ch1_enc": "koENlZxixos23hHebe4XYVh6v2QruyR4Qbm9WI6uvcBPbQ==",
+   "ch1_enc": "BRS9AgnSu2SmS26z3Xt8kaiKKNSbLrSIOswiyCXbFlXf/Q==",
    "ch2_enc": "BBu+AwvSv2SodEzhuHU8uZauMOHYDZn7RtM4gTXKPnXBiw=="
   },
   "10188051": {
@@ -1944,7 +1944,7 @@
    "start_date": "2026-07-25",
    "end_date": "2026-11-11",
    "sendkey_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
-   "ch1_enc": "k4IMlJRmxog13SWgadFfa3EPoHJvkwFgRMyCOLix7dASXw==",
+   "ch1_enc": "BhW8AQ/Yu2ikSke1vEYykLSDZNLBA7CgT/8bvzrPJmPxxg==",
    "ch2_enc": "BRS9AgjTv2umS3nksSkzoYWGGtXvHLenONYIi1L7DFXe9w=="
   },
   "10188247": {
@@ -2691,7 +2691,7 @@
    "start_date": "2026-07-25",
    "end_date": "2026-11-11",
    "sendkey_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
-   "ch1_enc": "lIsLk51hyvE4xD2CNNJBbgoNuWR78A51Ln3aV5I9iOp3dg==",
+   "ch1_enc": "Dx67CHDRv2qocVb3pGc+nvr9EtTrZWWFQe2xxyWtF3/n5g==",
    "ch2_enc": "Dh2kCXHbpmitckvwtnNmoq+pKMXnB0GEcdjZuhbnTXff5w=="
   },
   "LEGACY": {
@@ -3367,7 +3367,7 @@
    "start_date": "2026-07-25",
    "end_date": "2026-11-11",
    "sendkey_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA==",
-   "ch1_enc": "/PMTu6V4053ALASJCC1vQnIW4XI5/Tl5J9CaOICdt8AgWA=="
+   "ch1_enc": "FwaDEBjoRna1WZQ8mFjf0uKGGuKpCInpt0UhqHcIGHWQ6A=="
   }
  },
  "master_enc": "p7bY4OiyGcQJ6flvveWTPy1TaS4jp/U0mAd7zHF6JKRuIw=="
