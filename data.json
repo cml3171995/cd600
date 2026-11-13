@@ -1953,12 +1953,14 @@
     {
      "name": "28#楼1-17/A-E轴四层墙柱梁板梯",
      "pour": "2026-10-29",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "29#楼1-17/A-E轴负一层及周边车库墙柱梁板梯",
      "pour": "2026-10-30",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "25#楼1-36/A-K轴七层墙柱梁板梯",
