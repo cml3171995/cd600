@@ -1978,17 +1978,20 @@
     {
      "name": "29#楼1-17/A-E轴一层墙柱梁板梯",
      "pour": "2026-11-04",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "28#楼至29#楼中间大堂屋面层墙柱梁板",
      "pour": "2026-11-04",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "AV-BC/12-16轴车库负一层墙柱梁板",
      "pour": "2026-11-04",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "28#楼1-17/A-E轴五层墙柱梁板梯",
