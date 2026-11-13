@@ -1963,17 +1963,20 @@
     {
      "name": "25#楼1-36/A-K轴七层墙柱梁板梯",
      "pour": "2026-10-31",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "23#楼1-25/A-J轴三层墙柱梁板梯",
      "pour": "2026-10-31",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "4-10/AE-AQ轴车库筏板基础",
      "pour": "2026-11-03",
-     "notified": false
+     "notified": false,
+     "m7": 1
     },
     {
      "name": "29#楼1-17/A-E轴一层墙柱梁板梯",
