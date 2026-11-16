@@ -146,9 +146,9 @@ for reg in registry:
 
     if MODE == "milestone":
         # 16:00 试压提醒专跑：只算龄期，不动温度数据
-        # 调度延误防护：当天已发过 或 北京时间已过21点 → 本次不发（等第二天时段）
-        if data.get("lastms") == TODAY.isoformat() or HOUR >= 21:
-            print(f"[{code}] 试压提醒今日已发或已过时段，跳过")
+        # 调度延误防护：当天已发过 → 跳过（多时段哪个先跑成功发哪个）
+        if data.get("lastms") == TODAY.isoformat():
+            print(f"[{code}] 试压提醒今日已发，跳过")
             continue
         for p in node["parts"]:
             pour = p.get("pour", "")[:10]
@@ -227,7 +227,7 @@ for reg in registry:
     else:
         need600 = [p for p in node["parts"] if p["cum"] >= TARGET and not p.get("sent")]
     need600 = [p for p in node["parts"] if p["cum"] >= TARGET and not p.get("sent")]
-    if need600 and HOUR < 21:   # 深夜延误时段不发，等第二天
+    if need600:
         lines = [f"- {p['name']}（浇筑{p.get('pour')}，累计{p['cum']}℃·d）" for p in need600]
         desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
         if push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)", to_master=False):
