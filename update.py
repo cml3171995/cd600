@@ -10,7 +10,9 @@ GitHub Actions 每天北京时间08:00运行：
 import json, os, urllib.request, urllib.parse, base64, datetime
 
 TZ = datetime.timezone(datetime.timedelta(hours=8))
-TODAY = datetime.datetime.now(TZ).date()
+NOW = datetime.datetime.now(TZ)
+TODAY = NOW.date()
+HOUR = NOW.hour
 TARGET = float(os.environ.get("TARGET", "600"))
 MODE = os.environ.get("RUN_MODE", "full")   # full=08:00数据+600提醒；milestone=16:00试压到期提醒
 SALT = "JZ600-2026-QD-4B"
@@ -144,6 +146,10 @@ for reg in registry:
 
     if MODE == "milestone":
         # 16:00 试压提醒专跑：只算龄期，不动温度数据
+        # 调度延误防护：当天已发过 或 北京时间已过21点 → 本次不发（等第二天时段）
+        if data.get("lastms") == TODAY.isoformat() or HOUR >= 21:
+            print(f"[{code}] 试压提醒今日已发或已过时段，跳过")
+            continue
         for p in node["parts"]:
             pour = p.get("pour", "")[:10]
             try:
@@ -163,7 +169,8 @@ for reg in registry:
                 lines.append("【28天试压到期】")
                 lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28]
             desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines) +                    "\n\n试块试压完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
-            push(code, node, f"【试压提醒】{name} 7天{len(due7)}个/28天{len(due28)}个到期", desp, tag="(试压)")
+            if push(code, node, f"【试压提醒】{name} 7天{len(due7)}个/28天{len(due28)}个到期", desp, tag="(试压)"):
+                data["lastms"] = TODAY.isoformat()
         continue
 
     # 1) 最近92天实测（末尾一天是今天的预报，不计入）
@@ -214,12 +221,17 @@ for reg in registry:
         except Exception:
             p["age"] = 0
 
-    # 4a) 600℃·d 每日汇总提醒（满600且未送检）
+    # 4a) 600℃·d 每日汇总提醒（满600且未送检；当天已发过则跳过，防止GitHub调度延误导致重复/深夜打扰）
+    if data.get("last600") == TODAY.isoformat():
+        need600 = []
+    else:
+        need600 = [p for p in node["parts"] if p["cum"] >= TARGET and not p.get("sent")]
     need600 = [p for p in node["parts"] if p["cum"] >= TARGET and not p.get("sent")]
-    if need600:
+    if need600 and HOUR < 21:   # 深夜延误时段不发，等第二天
         lines = [f"- {p['name']}（浇筑{p.get('pour')}，累计{p['cum']}℃·d）" for p in need600]
         desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
-        push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)", to_master=False)
+        if push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)", to_master=False):
+            data["last600"] = TODAY.isoformat()   # 任一项目推送成功即标记当天已发
 
 with open("data.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
