@@ -98,7 +98,7 @@ def _send(key, title, desp):
         return False
     return True
 
-def push(code, node, title, desp, tag="", to_master=True):
+def push(code, node, title, desp, tag="", to_master=True, master_only=False):
     """双通道推送：通道1试验员 / 通道2质量总监；to_master=False时不发监管端"""
     ch1_enc = node.get("ch1_enc")
     legacy = node.get("sendkey_enc")
@@ -106,6 +106,8 @@ def push(code, node, title, desp, tag="", to_master=True):
     channels = [("通道1试验员", use1, use1_code),
                 ("通道2质量总监", node.get("ch2_enc"), code+"_2")]
     ok = False
+    if master_only:
+        channels = []
     for ch_name, enc, ch_code in channels:
         if not enc:
             print(f"[{code}] {ch_name}未绑定")
@@ -138,6 +140,8 @@ for reg in registry:
     if node.get("sendkey_enc") and not node.get("ch1_enc"):
         node["ch1_enc"] = node["sendkey_enc"]   # 旧绑定迁移为通道1（试验员）
     node["parts"] = [p for p in node.get("parts", []) if p.get("name")]
+    if data.get("lastms") == TODAY.isoformat() and not node.get("lastms_pj"):
+        node["lastms_pj"] = TODAY.isoformat()
     # 兼容旧数据：已送检视为7天28天均已送检
     for p in node["parts"]:
         if p.get("sent"):
@@ -145,11 +149,27 @@ for reg in registry:
     have = {x["date"]: x for x in days}
 
     if MODE == "milestone":
-        # 16:00 试压提醒专跑：只算龄期，不动温度数据
-        # 调度延误防护：当天已发过 → 跳过（多时段哪个先跑成功发哪个）
-        if data.get("lastms") == TODAY.isoformat():
-            print(f"[{code}] 试压提醒今日已发，跳过")
+        # 16:00 专跑：只推监管端（分公司），项目端已在8点时段收过
+        if node.get("lastms_ms") == TODAY.isoformat():
+            print(f"[{code}] 监管端试压提醒今日已发，跳过")
             continue
+        if MASTER_ENC:
+            due7m = [p for p in node["parts"] if p.get("age", 0) >= 7 and (p.get("age", 0) == 7 or not p.get("m7"))]
+            due28m = [p for p in node["parts"] if p.get("age", 0) >= 28 and (p.get("age", 0) == 28 or not p.get("m28"))]
+            if due7m or due28m:
+                lines = []
+                if due7m:
+                    lines.append("【7天试压到期】")
+                    lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due7m]
+                if due28m:
+                    lines.append("")
+                    lines.append("【28天试压到期】")
+                    lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28m]
+                desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines)
+                if push(code, node, f"【试压提醒·监管】{name} 7天{len(due7m)}个/28天{len(due28m)}个", desp,
+                        tag="(监管)", to_master=False, master_only=True):
+                    node["lastms_ms"] = TODAY.isoformat()
+        continue
         for p in node["parts"]:
             pour = p.get("pour", "")[:10]
             try:
@@ -232,6 +252,24 @@ for reg in registry:
         desp = f"项目：{name}（{code}）\n\n以下部位同条件养护已满600℃·d，请安排600℃·d同条件试块评估，完成后在页面点「600✓」：\n\n" + "\n".join(lines)
         if push(code, node, f"【600℃·d】{name} {len(need600)}个部位待评估", desp, tag="(600)", to_master=False):
             data["last600"] = TODAY.isoformat()   # 任一项目推送成功即标记当天已发
+
+    # 4b) 7天/28天试压到期 → 项目端（试验员+质量总监），8点时段，每天一条
+    if node.get("lastms_pj") != TODAY.isoformat():
+        due7 = [p for p in node["parts"] if p.get("age", 0) >= 7 and (p.get("age", 0) == 7 or not p.get("m7"))]
+        due28 = [p for p in node["parts"] if p.get("age", 0) >= 28 and (p.get("age", 0) == 28 or not p.get("m28"))]
+        if due7 or due28:
+            lines = []
+            if due7:
+                lines.append("【7天试压到期】")
+                lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due7]
+            if due28:
+                lines.append("")
+                lines.append("【28天试压到期】")
+                lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28]
+            desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines) +                    "\n\n试块试压完成后，请在页面该部位上点「7天✓」或「28天✓」，此后不再提醒。"
+            if push(code, node, f"【试压提醒】{name} 7天{len(due7)}个/28天{len(due28)}个到期", desp,
+                    tag="(试压-项目端)", to_master=False):
+                node["lastms_pj"] = TODAY.isoformat()
 
 with open("data.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=1)
