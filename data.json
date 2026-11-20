@@ -1268,7 +1268,8 @@
     {
      "name": "综合楼一层1-10轴交A-D轴梁板柱",
      "pour": "2026-11-13",
-     "notified": false
+     "notified": false,
+     "m7": 1
     }
    ],
    "start_date": "2026-07-27",
