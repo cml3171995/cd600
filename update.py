@@ -167,7 +167,7 @@ for reg in registry:
                     lines += [f"- {p['name']}（浇筑{p.get('pour')}，今天第{p['age']}天）" for p in due28m]
                 desp = f"项目：{name}（{code}）\n\n" + "\n".join(lines)
                 if push(code, node, f"【试压提醒·监管】{name} 7天{len(due7m)}个/28天{len(due28m)}个", desp,
-                        tag="(监管)", to_master=False, master_only=True):
+                        tag="(监管)", to_master=True, master_only=True):
                     node["lastms_ms"] = TODAY.isoformat()
         continue
         for p in node["parts"]:
