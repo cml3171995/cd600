@@ -159,6 +159,22 @@ function login(){
 function logout(){localStorage.removeItem('cd600_code');location.hash='';
   document.getElementById('main').style.display='none';document.getElementById('login').style.display='block';
   document.getElementById('code').value='';}
+/* ---- 从「底线做法照片上报」单向同步工程部位（只增不改不删，按名称去重） ---- */
+function syncBP(){
+  try{
+    FF('https://cml3171995.github.io/baseline-photos/data.json?r='+Date.now(),{cache:'no-store'})
+    .then(r=>r.json()).then(bp=>{
+      var list=(bp.parts||[]).filter(x=>x.proj===CODE);
+      if(!list.length)return;
+      var names=CUR.parts.map(p=>p.name);
+      var add=list.filter(x=>x.name&&!names.includes(x.name)&&!delSet[x.name]);
+      if(!add.length)return;
+      add.forEach(x=>CUR.parts.push({name:x.name,pour:(x.pour||'').split(' ')[0],notified:false}));
+      save(()=>{render();tip('✅ 已从「底线照片上报」同步 '+add.length+' 个工程部位');});
+    }).catch(()=>{});
+  }catch(e){}
+}
+
 function enter(c){
   CODE=c;CUR=DATA.projects[c]||(DATA.projects[c]={days:[],parts:[]});
   var p=REG.find(x=>x.code===c);
@@ -170,6 +186,7 @@ function enter(c){
   document.getElementById('login').style.display='none';
   document.getElementById('main').style.display='block';
   refreshBind();render();
+  syncBP();
 }
 
 function getSha(retry){ // 云端data.json版本号：主通道contents API，备用Git底层接口
