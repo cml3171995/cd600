@@ -171,6 +171,7 @@ function syncBP(){
       if(!add.length)return;
       add.forEach(x=>CUR.parts.push({name:x.name,pour:(x.pour||'').split(' ')[0],notified:false}));
       save(()=>{render();tip('✅ 已从「底线照片上报」同步 '+add.length+' 个工程部位');});
+      // 注：save已全局串行排队，此处自动保存不会与手动保存抢sha
     }).catch(()=>{});
   }catch(e){}
 }
@@ -206,7 +207,20 @@ function getSha(retry){ // 云端data.json版本号：主通道contents API，�
       return Promise.reject(e);
     });
 }
+var saveQ=[],saveBusy=false; // 全局写锁：并发save排队串行执行，根治sha撞车
 function save(cb,retry){
+  cb=cb||function(){};retry=retry||0;
+  saveQ.push({cb:cb,retry:retry});
+  if(saveBusy)return;
+  saveBusy=true;
+  var step=function(){
+    var job=saveQ.shift();
+    if(!job){saveBusy=false;return;}
+    _saveOnce(job.cb,job.retry,function(){setTimeout(step,300);});
+  };
+  step();
+}
+function _saveOnce(cb,retry,done){
   cb=cb||function(){};retry=retry||0;
   var url='https://api.github.com/repos/'+G.owner+'/'+G.repo+'/contents/data.json?t='+Date.now();
   var h={'Authorization':'Bearer '+G.token,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
@@ -232,10 +246,10 @@ function save(cb,retry){
   })
   .then(body=>FF(url,{method:'PUT',headers:h,body:JSON.stringify(body)}))
   .then(r=>r.json()).then(j=>{
-    if(j.commit){tip('✅ 已保存到云端');cb();}
-    else if(retry<4){setTimeout(()=>save(cb,retry+1),2000+retry*2000);}
-    else tip('❌ 保存失败：'+(j.message||'')+'，请稍后下拉刷新重试');
-  }).catch(e=>{if(retry<4){setTimeout(()=>save(cb,retry+1),2000+retry*2000);}else tip('❌ 网络失败：'+(e.message||e));});
+    if(j.commit){tip('✅ 已保存到云端');cb();done();}
+    else if(retry<4){var _c=cb;setTimeout(function(){saveQ.push({cb:_c,retry:retry+1});done();},2000+retry*2000);}
+    else {tip('❌ 保存失败：'+(j.message||'')+'，请稍后下拉刷新重试');done();}
+  }).catch(e=>{if(retry<4){var _c2=cb;setTimeout(function(){saveQ.push({cb:_c2,retry:retry+1});done();},2000+retry*2000);}else {tip('❌ 网络失败：'+(e.message||e));done();}});
 }
 
 var pending=null;
